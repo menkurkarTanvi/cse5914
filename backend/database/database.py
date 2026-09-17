@@ -1,24 +1,31 @@
+import os
+from collections.abc import Generator
+
+from dotenv import load_dotenv
 from sqlalchemy import create_engine
-from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
-#THIS FILE IS JUST A TEMPLATE 
 
-# Update with your database credentials: postgresql://user:password@host:port/db_name
-DATABASE_URL = "postgresql://postgres:password@localhost:5432/my_database"
+load_dotenv()
 
-# Create the SQLAlchemy engine
-engine = create_engine(DATABASE_URL)
+DATABASE_URL = os.getenv(
+    "DATABASE_URL",
+    "postgresql+psycopg://fitstack:fitstack@localhost:5433/fitstack",
+)
 
-# Create a session factory
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Base class for database models
-Base = declarative_base()
+class Base(DeclarativeBase):
+    pass
 
-# Dependency to get the DB session per request
-def get_db():
-    db = SessionLocal()
-    try:
+
+engine_options = {"pool_pre_ping": True}
+if DATABASE_URL.startswith("sqlite"):
+    engine_options["connect_args"] = {"check_same_thread": False}
+
+engine = create_engine(DATABASE_URL, **engine_options)
+SessionLocal = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False)
+
+
+def get_db() -> Generator[Session, None, None]:
+    with SessionLocal() as db:
         yield db
-    finally:
-        db.close()
