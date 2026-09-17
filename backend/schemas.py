@@ -1,8 +1,11 @@
+from typing import Annotated
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, StringConstraints
 
 from database.models import ExperienceLevel, Goal
+
+EquipmentName = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=80)]
 
 
 class AvailabilityInput(BaseModel):
@@ -21,7 +24,7 @@ class ProfileCreate(BaseModel):
     goal: Goal
     experience_level: ExperienceLevel
     training_block_weeks: int = Field(default=4, ge=1, le=12)
-    equipment: list[str] = Field(default_factory=list)
+    equipment: list[EquipmentName] = Field(default_factory=list)
     availability: list[AvailabilityInput] = Field(default_factory=list)
     limitations: list[LimitationInput] = Field(default_factory=list)
 

@@ -8,7 +8,7 @@ Prerequisites: Python 3.11+ and Docker.
 
 ```bash
 cp .env.example .env
-docker compose up -d db
+docker compose up -d --wait db
 python -m venv .venv
 source .venv/bin/activate
 pip install -r backend/requirements.txt

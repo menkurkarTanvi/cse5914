@@ -4,8 +4,7 @@ import enum
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, Integer, String, UniqueConstraint, func
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, Integer, String, UniqueConstraint, Uuid, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .database import Base
@@ -27,7 +26,7 @@ class ExperienceLevel(str, enum.Enum):
 class Profile(Base):
     __tablename__ = "profiles"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True, default=uuid.uuid4)
     display_name: Mapped[str] = mapped_column(String(100))
     goal: Mapped[Goal] = mapped_column(Enum(Goal, name="goal_enum"))
     experience_level: Mapped[ExperienceLevel] = mapped_column(Enum(ExperienceLevel, name="experience_level_enum"))

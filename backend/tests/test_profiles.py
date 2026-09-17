@@ -34,3 +34,23 @@ def test_rejects_duplicate_availability_days(client):
         },
     )
     assert response.status_code == 422
+
+
+def test_rejects_invalid_equipment_names(client):
+    base_payload = {
+        "display_name": "Taylor",
+        "goal": "strength",
+        "experience_level": "beginner",
+    }
+
+    too_long = client.post(
+        "/api/v1/profiles",
+        json={**base_payload, "equipment": ["x" * 81]},
+    )
+    blank = client.post(
+        "/api/v1/profiles",
+        json={**base_payload, "equipment": ["   "]},
+    )
+
+    assert too_long.status_code == 422
+    assert blank.status_code == 422
