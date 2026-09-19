@@ -10,8 +10,16 @@ from sqlalchemy import select
 from database.database import get_db
 from database.models import Availability, Equipment, Limitation, Profile
 from schemas import ProfileCreate, ProfileRead
+from database import engine, Base
 
-app = FastAPI(title="FitStack API", version="0.1.0")
+async def lifespan(app: FastAPI):
+    #This runs before the application starts accepting requests. It creates the necessary database tables and ensures that the vector extension is available in PostgreSQL.
+    async with engine.begin() as conn:
+        await conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
+        #Creates the necessary tabeles in the database based on the SQLAlchemy models defined in the application.
+        await conn.run_sync(Base.metadata.create_all)
+    yield
+app = FastAPI(title="FitStack API", version="0.1.0", lifespan=lifespan)
 
 origins = [value.strip() for value in os.getenv("CORS_ORIGINS", "http://localhost:5173").split(",")]
 app.add_middleware(
@@ -21,12 +29,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-@app.get("/health")
-def health(db: Session = Depends(get_db)) -> dict[str, str]:
-    db.execute(text("SELECT 1"))
-    return {"status": "ok"}
 
 
 @app.post("/api/v1/profiles", response_model=ProfileRead, status_code=status.HTTP_201_CREATED)
