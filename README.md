@@ -32,6 +32,10 @@ pytest
 
 The database schema is managed with Alembic. Do not call `Base.metadata.create_all()` in application startup; apply migrations instead.
 
+## Data
+
+`python backend/scripts/ingest.py` pulls the full exercise catalog from the Kinetic API (`https://api.kinetic.place`) and caches it to `backend/data/kinetic_exercises.json` (gitignored, regenerate as needed).
+
 ## Frontend
 
 ```bash
