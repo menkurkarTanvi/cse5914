@@ -1,6 +1,6 @@
 from __future__ import annotations
 # models.py
-from sqlalchemy import Column, String, Text, false
+from sqlalchemy import Column, String, Text, false, ARRAY
 from sqlalchemy.dialects.postgresql import TEXT, UUID, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from pgvector.sqlalchemy import Vector
@@ -21,10 +21,10 @@ class Exercise(Base):
     instructions: Mapped[str] = mapped_column(String, nullable=False)
 
     # Kinetic muscle/equipment data
-    primary_muscles: Mapped[list[str]] = mapped_column(TEXT[], nullable=False)
-    secondary_muscles: Mapped[list[str]] = mapped_column(TEXT[], nullable=False)
-    tertiary_muscles: Mapped[list[str]] = mapped_column(TEXT[], nullable=False)
-    equipment_required: Mapped[list[str]] = mapped_column(TEXT[], nullable=False)
+    primary_muscles: Mapped[list[str]] = mapped_column(ARRAY(TEXT), nullable=False)
+    secondary_muscles: Mapped[list[str]] = mapped_column(ARRAY(TEXT), nullable=False)
+    tertiary_muscles: Mapped[list[str]] = mapped_column(ARRAY(TEXT), nullable=False)
+    equipment_required: Mapped[list[str]] = mapped_column(ARRAY(TEXT), nullable=False)
 
     # FitStack enrichment --> llm uses the data to generate the input for these attributes
     exercise_family: str
