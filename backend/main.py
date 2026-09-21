@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session, selectinload
 from sqlalchemy import select
 
 from database.database import get_db
-from database.models import Availability, Equipment, Limitation, Profile
+from backend.models.exercise import Availability, Equipment, Limitation, Profile
 from schemas import ProfileCreate, ProfileRead
 from database import engine, Base
 

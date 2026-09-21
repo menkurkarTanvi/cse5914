@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from sqlalchemy import engine_from_config, pool
 
 from database.database import Base
-from database import models  # noqa: F401
+from backend.models import exercise  # noqa: F401
 
 config = context.config
 load_dotenv()
