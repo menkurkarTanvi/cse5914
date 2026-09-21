@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import './App.css'
+import ProfileSetup from './Profile/Profile'
 
 type Page =
   | 'dashboard'
@@ -288,220 +289,220 @@ function StatCard({
   )
 }
 
-function ProfileSetup({
-  setPage,
-}: {
-  setPage: (page: Page) => void
-}) {
-  const [goal, setGoal] =
-    useState('Build muscle')
+// function ProfileSetup({
+//   setPage,
+// }: {
+//   setPage: (page: Page) => void
+// }) {
+//   const [goal, setGoal] =
+//     useState('Build muscle')
 
-  const [experience, setExperience] =
-    useState('Intermediate')
+//   const [experience, setExperience] =
+//     useState('Intermediate')
 
-  const [equipment, setEquipment] =
-    useState('Full gym')
+//   const [equipment, setEquipment] =
+//     useState('Full gym')
 
-  return (
-    <>
-      <PageHeader
-        title="Profile Setup"
-        subtitle="Tell FitStack about your goals, schedule, and available equipment."
-      />
+//   return (
+//     <>
+//       <PageHeader
+//         title="Profile Setup"
+//         subtitle="Tell FitStack about your goals, schedule, and available equipment."
+//       />
 
-      <section className="profile-grid">
-        <div className="panel form-panel">
-          <h2>Personal information</h2>
+//       <section className="profile-grid">
+//         <div className="panel form-panel">
+//           <h2>Personal information</h2>
 
-          <div className="form-grid">
-            <label>
-              Age
-              <input defaultValue="26" />
-            </label>
+//           <div className="form-grid">
+//             <label>
+//               Age
+//               <input defaultValue="26" />
+//             </label>
 
-            <label>
-              Weight
-              <input defaultValue="154" />
-            </label>
+//             <label>
+//               Weight
+//               <input defaultValue="154" />
+//             </label>
 
-            <label>
-              Primary goal
+//             <label>
+//               Primary goal
 
-              <select
-                value={goal}
-                onChange={(event) =>
-                  setGoal(event.target.value)
-                }
-              >
-                <option>
-                  Build muscle
-                </option>
+//               <select
+//                 value={goal}
+//                 onChange={(event) =>
+//                   setGoal(event.target.value)
+//                 }
+//               >
+//                 <option>
+//                   Build muscle
+//                 </option>
 
-                <option>
-                  Strength
-                </option>
+//                 <option>
+//                   Strength
+//                 </option>
 
-                <option>
-                  Fat loss
-                </option>
+//                 <option>
+//                   Fat loss
+//                 </option>
 
-                <option>
-                  Endurance
-                </option>
-              </select>
-            </label>
+//                 <option>
+//                   Endurance
+//                 </option>
+//               </select>
+//             </label>
 
-            <label>
-              Experience level
+//             <label>
+//               Experience level
 
-              <select
-                value={experience}
-                onChange={(event) =>
-                  setExperience(
-                    event.target.value,
-                  )
-                }
-              >
-                <option>
-                  Beginner
-                </option>
+//               <select
+//                 value={experience}
+//                 onChange={(event) =>
+//                   setExperience(
+//                     event.target.value,
+//                   )
+//                 }
+//               >
+//                 <option>
+//                   Beginner
+//                 </option>
 
-                <option>
-                  Intermediate
-                </option>
+//                 <option>
+//                   Intermediate
+//                 </option>
 
-                <option>
-                  Advanced
-                </option>
-              </select>
-            </label>
+//                 <option>
+//                   Advanced
+//                 </option>
+//               </select>
+//             </label>
 
-            <label>
-              Activity level
+//             <label>
+//               Activity level
 
-              <select defaultValue="Moderately active">
-                <option>
-                  Lightly active
-                </option>
+//               <select defaultValue="Moderately active">
+//                 <option>
+//                   Lightly active
+//                 </option>
 
-                <option>
-                  Moderately active
-                </option>
+//                 <option>
+//                   Moderately active
+//                 </option>
 
-                <option>
-                  Very active
-                </option>
-              </select>
-            </label>
+//                 <option>
+//                   Very active
+//                 </option>
+//               </select>
+//             </label>
 
-            <label>
-              Limitations / injuries
+//             <label>
+//               Limitations / injuries
 
-              <input placeholder="None" />
-            </label>
-          </div>
-        </div>
+//               <input placeholder="None" />
+//             </label>
+//           </div>
+//         </div>
 
-        <div className="panel form-panel">
-          <h2>Training preferences</h2>
+//         <div className="panel form-panel">
+//           <h2>Training preferences</h2>
 
-          <div className="form-grid one-column">
-            <label>
-              Workout days per week
+//           <div className="form-grid one-column">
+//             <label>
+//               Workout days per week
 
-              <select defaultValue="4 days">
-                <option>3 days</option>
-                <option>4 days</option>
-                <option>5 days</option>
-                <option>6 days</option>
-              </select>
-            </label>
+//               <select defaultValue="4 days">
+//                 <option>3 days</option>
+//                 <option>4 days</option>
+//                 <option>5 days</option>
+//                 <option>6 days</option>
+//               </select>
+//             </label>
 
-            <label>
-              Typical session length
+//             <label>
+//               Typical session length
 
-              <select defaultValue="60 minutes">
-                <option>
-                  30 minutes
-                </option>
+//               <select defaultValue="60 minutes">
+//                 <option>
+//                   30 minutes
+//                 </option>
 
-                <option>
-                  45 minutes
-                </option>
+//                 <option>
+//                   45 minutes
+//                 </option>
 
-                <option>
-                  60 minutes
-                </option>
+//                 <option>
+//                   60 minutes
+//                 </option>
 
-                <option>
-                  90 minutes
-                </option>
-              </select>
-            </label>
+//                 <option>
+//                   90 minutes
+//                 </option>
+//               </select>
+//             </label>
 
-            <label>
-              Available equipment
+//             <label>
+//               Available equipment
 
-              <select
-                value={equipment}
-                onChange={(event) =>
-                  setEquipment(
-                    event.target.value,
-                  )
-                }
-              >
-                <option>
-                  Full gym
-                </option>
+//               <select
+//                 value={equipment}
+//                 onChange={(event) =>
+//                   setEquipment(
+//                     event.target.value,
+//                   )
+//                 }
+//               >
+//                 <option>
+//                   Full gym
+//                 </option>
 
-                <option>
-                  Dumbbells only
-                </option>
+//                 <option>
+//                   Dumbbells only
+//                 </option>
 
-                <option>
-                  Bodyweight
-                </option>
+//                 <option>
+//                   Bodyweight
+//                 </option>
 
-                <option>
-                  Travel / limited
-                </option>
-              </select>
-            </label>
+//                 <option>
+//                   Travel / limited
+//                 </option>
+//               </select>
+//             </label>
 
-            <label>
-              Preferred training style
+//             <label>
+//               Preferred training style
 
-              <select defaultValue="Hypertrophy / strength">
-                <option>
-                  Hypertrophy / strength
-                </option>
+//               <select defaultValue="Hypertrophy / strength">
+//                 <option>
+//                   Hypertrophy / strength
+//                 </option>
 
-                <option>
-                  General fitness
-                </option>
+//                 <option>
+//                   General fitness
+//                 </option>
 
-                <option>
-                  Endurance
-                </option>
-              </select>
-            </label>
-          </div>
-        </div>
-      </section>
+//                 <option>
+//                   Endurance
+//                 </option>
+//               </select>
+//             </label>
+//           </div>
+//         </div>
+//       </section>
 
-      <div className="page-actions">
-        <button
-          className="gold-button"
-          onClick={() =>
-            setPage('plan')
-          }
-        >
-          Generate My Plan
-        </button>
-      </div>
-    </>
-  )
-}
+//       <div className="page-actions">
+//         <button
+//           className="gold-button"
+//           onClick={() =>
+//             setPage('plan')
+//           }
+//         >
+//           Generate My Plan
+//         </button>
+//       </div>
+//     </>
+//   )
+// }
 
 function WorkoutPlan({
   exercises,
