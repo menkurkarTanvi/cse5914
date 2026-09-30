@@ -1,16 +1,5 @@
 import { useState } from 'react'
-
-type Page =
-  | 'dashboard'
-  | 'plan'
-  | 'progress'
-  | 'coach'
-  | 'nutrition'
-  | 'profile'
-
-type ProfileProps = {
-  setPage: (page: Page) => void
-}
+import { useNavigate } from 'react-router-dom';
 
 type FormData = {
   equipment: string[]
@@ -36,12 +25,12 @@ const initialFormData: FormData = {
   trainingBlockLength: '4',
 }
 
-function ProfileSetup({ setPage }: ProfileProps) {
-  const [formData, setFormData] =
-    useState<FormData>(initialFormData)
-
+function ProfileSetup() {
+  const [formData, setFormData] = useState<FormData>(initialFormData)
   const [submitted, setSubmitted] = useState(false)
-
+  //Routing to other pages object
+  const navigate = useNavigate();
+  
   function updateField(
     field: keyof FormData,
     value: string | string[],
@@ -76,12 +65,9 @@ function ProfileSetup({ setPage }: ProfileProps) {
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault()
-
     console.log('Profile data:', formData)
-
     setSubmitted(true)
-
-    setPage('dashboard')
+    navigate('/dashboard');
 
     // backend stuff here later
   }

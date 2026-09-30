@@ -1,0 +1,55 @@
+/* ---------- Sidebar container ---------- */
+.sidebar {
+    /* Colors are defined here so the navbar works on any page */
+    --sidebar-bg: #2f2710;
+    --accent: #f2b72a;
+    --text: #ffffff;
+
+    width: 205px;
+    flex-shrink: 0;            /* don't let the page content squash the sidebar */
+    background: var(--sidebar-bg);
+    border-right: 1px solid #1f1a0a;
+    padding: 30px 20px;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+/* ---------- Logo ---------- */
+.sidebar-logo h2 {
+    margin: 0;
+    color: var(--accent);
+    font-size: 20px;
+}
+
+.sidebar-logo p {
+    margin: 2px 0 0;
+    font-size: 10px;
+    color: var(--text);
+}
+
+/* ---------- Navigation links ---------- */
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 28px;
+}
+
+.nav-link {
+    display: block;            /* link fills the full row like a button */
+    text-decoration: none;     /* remove the default link underline */
+    color: var(--text);
+    font-size: 14px;
+    padding: 11px 11px;
+    border-radius: 6px;
+}
+
+.nav-link:hover {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+/* NavLink adds the "active" class to the link for the current page */
+.nav-link.active {
+    background: #07080a;
+    color: var(--accent);
+}

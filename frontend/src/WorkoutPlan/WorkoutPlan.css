@@ -1,0 +1,210 @@
+/* ---------- Base / colors ---------- */
+:root {
+    --bg: #090a0c;            /* page background */
+    --sidebar-bg: #2f2710;    /* sidebar background */
+    --card-bg: #342a0f;       /* cards */
+    --item-bg: #1c1d20;       /* inner rows */
+    --accent: #f2b72a;        /* yellow accent */
+    --text: #ffffff;
+    --muted: #a39a82;         /* secondary text */
+}
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+/* ---------- Page layout: sidebar + main ---------- */
+.workout-plan-layout {
+    display: flex;
+    min-height: 100vh;
+}
+
+
+/* ---------- Main content ---------- */
+.workout-plan {
+    flex: 1;
+    max-width: 1205px;
+    margin: 0 auto;
+    padding: 40px 30px;
+    box-sizing: border-box;
+}
+
+.page-title {
+    margin: 0;
+    font-size: 28px;
+}
+
+.page-subtitle {
+    margin: 6px 0 22px;
+    font-size: 14px;
+    color: var(--muted);
+}
+
+.card {
+    background: var(--card-bg);
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.card h2 {
+    margin: 0;
+    font-size: 18px;
+}
+
+/* ---------- Plan name card (top) ---------- */
+.workout-plan-name {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding: 24px 20px;
+}
+
+.workout-plan-name p {
+    margin: 10px 0 0;
+    font-size: 13px;
+    color: var(--muted);
+}
+
+/* Light "Ask AI Coach" button */
+.ask-coach-button {
+    background: #fbf5e8;
+    border: none;
+    border-radius: 6px;
+    padding: 11px 12px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #1a1400;
+    cursor: pointer;
+}
+
+.ask-coach-button:hover {
+    filter: brightness(0.95);
+}
+
+/* ---------- Main grid (week list + day details) ---------- */
+.workout-plan-grid {
+    display: grid;
+    grid-template-columns: 207px 1fr;
+    gap: 16px;
+    align-items: stretch;
+    min-height: 504px;
+}
+
+/* ---------- "This week" day list ---------- */
+.select-day-of-week {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.select-day-of-week h2 {
+    margin-bottom: 10px;
+}
+
+.day-button {
+    background: none;
+    border: none;
+    color: var(--muted);
+    text-align: left;
+    font-size: 14px;
+    padding: 11px 13px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.day-button:hover {
+    background: rgba(0, 0, 0, 0.25);
+}
+
+/* Currently selected day */
+.day-button.active {
+    background: var(--item-bg);
+    color: var(--accent);
+}
+
+/* ---------- Day details ---------- */
+.day-muscles {
+    margin: 8px 0 20px;
+    font-size: 14px;
+    color: var(--muted);
+}
+
+.exercise-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.exercise-item {
+    background: var(--item-bg);
+    border-radius: 6px;
+    padding: 14px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.exercise-item h3 {
+    margin: 0;
+    font-size: 13px;
+}
+
+.exercise-item p {
+    margin: 4px 0 0;
+    font-size: 11px;
+    color: var(--muted);
+}
+
+.swap-button {
+    background: none;
+    border: none;
+    color: var(--accent);
+    font-size: 11px;
+    cursor: pointer;
+    padding: 4px 6px;
+}
+
+.swap-button:hover {
+    text-decoration: underline;
+}
+
+/* ---------- Mark complete button ---------- */
+.complete-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 21px;
+}
+
+.complete-button {
+    background: var(--accent);
+    border: none;
+    border-radius: 6px;
+    padding: 11px 14px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #1a1400;
+    cursor: pointer;
+}
+
+.complete-button:hover {
+    filter: brightness(1.08);
+}
+
+/* Dimmed once the workout is marked complete */
+.complete-button:disabled {
+    opacity: 0.6;
+    cursor: default;
+    filter: none;
+}
+
+/* ---------- Smaller screens ---------- */
+@media (max-width: 900px) {
+    .workout-plan-grid {
+        grid-template-columns: 1fr;
+        min-height: 0;
+    }
+}
