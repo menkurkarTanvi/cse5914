@@ -1,15 +1,18 @@
-import requests, time
+# Pull the full exercise catalog from the Kinetic API and cache it locally
+import json
+from pathlib import Path
 
-BASE = "https://wger.de/api/v2"
-exercises = []
-url = f"{BASE}/exerciseinfo/?language=2&limit=100"
+from kinetic_client import fetch_all_exercises
 
-while url:
-    r = requests.get(url, headers={"Accept": "application/json"})
-    r.raise_for_status()
-    data = r.json()
-    exercises.extend(data["results"])
-    url = data["next"]
-    time.sleep(0.2)  # be polite, endpoint is unthrottled but don't hammer it
+OUTPUT_PATH = Path(__file__).resolve().parent.parent / "data" / "kinetic_exercises.json"
 
-print(len(exercises), "exercises pulled")
+
+def main() -> None:
+    exercises = fetch_all_exercises()
+    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    OUTPUT_PATH.write_text(json.dumps(exercises, indent=2))
+    print(f"Fetched {len(exercises)} exercises -> {OUTPUT_PATH}")
+
+
+if __name__ == "__main__":
+    main()
