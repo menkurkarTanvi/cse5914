@@ -3,7 +3,6 @@ import './NavBar.css';
 
 // This is the list of navigation links that will appear in the sidebar. Each link has a label and a path.
 const navLinks = [
-    { label: 'Dashboard', path: '/dashboard' },
     { label: 'My Plan', path: '/my-plan' },
     { label: 'Progress', path: '/progress' },
     { label: 'AI Coach', path: '/ai-coach' },

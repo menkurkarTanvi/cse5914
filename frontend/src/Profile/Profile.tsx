@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom';
+import NavBar from '../NavBar/NavBar'
 
 type FormData = {
   equipment: string[]
@@ -75,6 +76,7 @@ function ProfileSetup() {
   return (
     <>
       <header className="page-header">
+        <NavBar />
         <h1>Profile Setup</h1>
 
         <p>

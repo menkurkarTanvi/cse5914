@@ -3,16 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import './SignUp.css'
 
 export default function SignUp(){
-    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     // Message shown when something is missing or the passwords don't match
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
-    const signUp = (username: string, password: string, confirmPassword: string) => {
+    const signUp = async (email: string, password: string, confirmPassword: string) => {
         // Don't try to sign up with empty fields
-        if (username.trim() === '' || password === '' || confirmPassword === '') {
+        if (email.trim() === '' || password === '' || confirmPassword === '') {
             setError('Please fill in all fields.');
             return;
         }
@@ -23,16 +23,34 @@ export default function SignUp(){
         }
         setError('');
 
-        //handle backend logic for creating the new user account (connect with backend later)
-
-        // Account created, so send the user to the login page
-        navigate('/login');
+        //handle backend logic for creating the new user account
+        try{
+            const response = await fetch('http://localhost:8000/users/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password }),
+            });
+            if (!response.ok) {
+                // FastAPI sends the reason in the "detail" field
+                const data = await response.json().catch(() => null);
+                // detail is a string for HTTPException, or a list for validation errors
+                const message = typeof data?.detail === 'string' ? data.detail : 'Sign up failed. Please try again.';
+                setError(message);
+            } else {
+                // Account created, so send the user to the login page
+                navigate('/login');
+            }
+        } catch (error) {
+            setError('An error occurred. Please try again.');
+        }
     };
 
     // Runs when the form is submitted (Sign Up button or pressing Enter)
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault(); // stop the page from reloading
-        signUp(username, password, confirmPassword);
+        signUp(email, password, confirmPassword);
     }
 
     // Go back to the login page for users who already have an account
@@ -51,12 +69,12 @@ export default function SignUp(){
                 <p className='signup-subtitle'>Create an account to get your personalized plan.</p>
 
                 <form onSubmit={handleSubmit}>
-                    <label htmlFor="username">Username</label>
+                    <label htmlFor="email">Email</label>
                     <input
-                        id="username"
-                        type="text"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
+                        id="email"
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
                     />
 
                     <label htmlFor="password">Password</label>
