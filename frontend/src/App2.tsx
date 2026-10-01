@@ -8,6 +8,7 @@ import AICoach from './AICoach/AICoach';
 import Nutrition from './Nutrition/Nutrition';
 import ProfileSetup from './Profile/Profile';
 import SignUp from './SignUp/SignUp';
+import Dashboard from './Dashboard/Dashboard';
 
 // Only lets logged-in users through; everyone else is sent to the login page
 function ProtectedRoute() {
@@ -28,6 +29,7 @@ export default function App2() {
         
         {/* Pages that need a token (paths match the NavBar links) */}
         <Route element={<ProtectedRoute />}>
+          <Route path='/dashboard' element={<Dashboard />} />
           <Route path='/my-plan' element={<WorkoutPlan />} />
           <Route path='/progress' element={<Progress />} />
           <Route path='/ai-coach' element={<AICoach />} />

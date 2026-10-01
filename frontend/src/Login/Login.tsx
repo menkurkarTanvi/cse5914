@@ -45,7 +45,7 @@ export default function Login(){
                 setToken(data.token);
                 console.log('JWT token:', data.token);
                 // Login worked, so go to the dashboard
-                navigate('/my-plan');
+                navigate('/dashboard');
             }
         } catch (error) {
             console.error('Login error:', error);
