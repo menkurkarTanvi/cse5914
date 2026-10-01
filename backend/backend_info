@@ -1,0 +1,17 @@
+Docker run the database
+
+Every time your work
+- Start docker desktop
+- Start the database and wait until status is health
+    - docker compose up -d
+    - docker compose ps
+
+- Start the backend (MUST BE INSIDE BACKEND FOLDER: uvicorn main:app --reload)
+- Start frontend (npm run dev)
+
+- Only when needed
+    - You pulled new code with migrations (alembic upgrade head)
+    - You changed a model (alembic revision --autogenerate -m "...", then alembic upgrade head)
+
+- Wen your done
+    - docker compose stop

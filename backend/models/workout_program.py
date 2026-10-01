@@ -5,7 +5,7 @@ from sqlalchemy.dialects.postgresql import TEXT, UUID, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from pgvector.sqlalchemy import Vector
 import uuid
-from database import Base
+from database.database import Base
 
 #This class represents the enture 4 week session
 #WorkoutProgram
