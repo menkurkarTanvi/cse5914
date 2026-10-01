@@ -1,21 +1,24 @@
 from __future__ import annotations
 from datetime import date
+from typing import TYPE_CHECKING
 # models.py
-from sqlalchemy import Column, String, Text, false, ARRAY
+from sqlalchemy import Column, ForeignKey, String, Text, false, ARRAY
 from sqlalchemy.dialects.postgresql import TEXT, UUID, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from pgvector.sqlalchemy import Vector
 import uuid
-from database import Base
+from database.database import Base
+
 
 #The user profile information
 class Profile(Base):
     __tablename__ = "profiles"
 
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+
+    #Foreign key to the user table, one-to-one relationship with the users
     user_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True),
-        primary_key=True,
-        default=uuid.uuid4
+        ForeignKey("users.id"), unique=True, nullable=False
     )
 
     goal: Mapped[str] = mapped_column(
@@ -58,3 +61,4 @@ class Profile(Base):
         nullable=False,
         default=list
     )
+    user: Mapped[User] = relationship("User", back_populates="profile")

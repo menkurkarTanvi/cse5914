@@ -1,5 +1,5 @@
 from datetime import date
-from backend.database.database import Base
+from database.database import Base
 
 
 
@@ -8,7 +8,7 @@ from sqlalchemy.dialects.postgresql import TEXT, UUID, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from pgvector.sqlalchemy import Vector
 import uuid
-from database import Base
+from database.database import Base
 
 #Information we get from the user after they complete the workout plan for the week. 
 class WorkoutSet(Base):

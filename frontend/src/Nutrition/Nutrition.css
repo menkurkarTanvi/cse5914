@@ -1,0 +1,93 @@
+/* ---------- Page layout: navbar + main ---------- */
+/* Colors are defined here so the page works on its own; move to a global file if you prefer */
+.nutrition {
+    --bg: #090a0c;
+    --card-bg: #342a0f;
+    --accent: #f2b72a;
+    --text: #ffffff;
+    --muted: #a39a82;
+
+    display: flex;
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+.nutrition-main {
+    flex: 1;
+    max-width: 1205px;
+    margin: 0 auto;
+    padding: 40px 30px;
+    box-sizing: border-box;
+}
+
+.nutrition .page-title {
+    margin: 0;
+    font-size: 28px;
+}
+
+.nutrition .page-subtitle {
+    margin: 6px 0 22px;
+    font-size: 14px;
+    color: var(--muted);
+}
+
+/* ---------- Target cards (4 across) ---------- */
+.nutrition .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.nutrition .stat-card {
+    background: var(--card-bg);
+    border-radius: 8px;
+    padding: 22px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.nutrition .stat-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.nutrition .stat-value {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--accent);
+}
+
+/* ---------- Today's targets card ---------- */
+.nutrition .card {
+    background: var(--card-bg);
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.todays-targets {
+    min-height: 220px;
+    box-sizing: border-box;
+}
+
+.todays-targets h2 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.todays-targets p {
+    margin: 8px 0 0;
+    font-size: 14px;
+    color: var(--muted);
+}
+
+/* ---------- Smaller screens ---------- */
+@media (max-width: 900px) {
+    .nutrition .stats-row {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}

@@ -5,7 +5,7 @@ from sqlalchemy.dialects.postgresql import TEXT, UUID, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from pgvector.sqlalchemy import Vector
 import uuid
-from database import Base
+from database.database import Base
 
 class WorkoutPlanExercise(Base):
     __tablename__ = "workout_plan_exercises"

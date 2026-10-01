@@ -1,0 +1,123 @@
+/* ---------- Page: dark background, card centered ---------- */
+/* Colors are defined here so the page works on its own; move to a global file if you prefer */
+.user-signup {
+    --bg: #090a0c;
+    --card-bg: #342a0f;
+    --item-bg: #1c1d20;
+    --accent: #f2b72a;
+    --text: #ffffff;
+    --muted: #a39a82;
+
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+/* ---------- Sign up card ---------- */
+.signup-card {
+    width: 100%;
+    max-width: 380px;
+    background: var(--card-bg);
+    border-radius: 8px;
+    padding: 30px;
+    box-sizing: border-box;
+}
+
+.signup-logo h2 {
+    margin: 0;
+    color: var(--accent);
+    font-size: 20px;
+}
+
+.signup-logo p {
+    margin: 2px 0 0;
+    font-size: 10px;
+}
+
+.signup-card h1 {
+    margin: 28px 0 0;
+    font-size: 28px;
+}
+
+.signup-subtitle {
+    margin: 6px 0 22px;
+    font-size: 14px;
+    color: var(--muted);
+}
+
+/* ---------- Form ---------- */
+.signup-card form {
+    display: flex;
+    flex-direction: column;
+}
+
+.signup-card label {
+    margin-bottom: 6px;
+    font-size: 12px;
+    color: var(--muted);
+}
+
+.signup-card input {
+    background: var(--item-bg);
+    border: 1px solid #3a3b40;
+    border-radius: 6px;
+    padding: 13px 12px;
+    margin-bottom: 16px;
+    font-size: 14px;
+    color: var(--text);
+    outline: none;
+}
+
+.signup-card input:focus {
+    border-color: var(--accent);
+}
+
+.signup-error {
+    margin: 0 0 14px;
+    font-size: 12px;
+    color: #ff7a6b;
+}
+
+/* ---------- Buttons ---------- */
+.signup-submit-button {
+    background: var(--accent);
+    border: none;
+    border-radius: 6px;
+    padding: 12px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #1a1400;
+    cursor: pointer;
+}
+
+.signup-submit-button:hover {
+    filter: brightness(1.08);
+}
+
+.login-text {
+    margin: 22px 0 8px;
+    font-size: 12px;
+    color: var(--muted);
+}
+
+/* Secondary button: dark, with a yellow outline on hover */
+.login-link-button {
+    display: block;
+    width: 100%;
+    background: var(--item-bg);
+    border: 1px solid transparent;
+    border-radius: 6px;
+    padding: 11px 13px;
+    font-size: 14px;
+    color: var(--text);
+    cursor: pointer;
+}
+
+.login-link-button:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
