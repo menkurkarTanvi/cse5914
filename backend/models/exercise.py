@@ -1,61 +1,200 @@
 from __future__ import annotations
-from datetime import date
-# models.py
-from sqlalchemy import Column, String, Text, false, ARRAY
-from sqlalchemy.dialects.postgresql import TEXT, UUID, JSONB
+
+import uuid
+
+from sqlalchemy import (
+    ARRAY,
+    ForeignKey,
+    String,
+    Text,
+)
+from sqlalchemy.dialects.postgresql import TEXT
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from pgvector.sqlalchemy import Vector
-import uuid
+
 from database.database import Base
+
 
 class Exercise(Base):
     __tablename__ = "exercises"
 
-    exercise_id: Mapped[str] = mapped_column(String, primary_key=True)
-    name: Mapped[str] = mapped_column(String, nullable=False)
+    # -------------------------
+    # Kinetic Exercise DB
+    # -------------------------
 
-    # Kinetic
-    type: Mapped[str] = mapped_column(String, nullable=False)
-    difficulty_level: Mapped[str] = mapped_column(String, nullable=False)
-    force_type: Mapped[str] = mapped_column(String, nullable=False)
-    mechanics: Mapped[str] = mapped_column(String, nullable=False)
-    category: Mapped[str] = mapped_column(String, nullable=False)
-    instructions: Mapped[str] = mapped_column(Text, nullable=False)
+    exercise_id: Mapped[str] = mapped_column(
+        String,
+        primary_key=True
+    )
 
-    primary_muscles: Mapped[list[str]] = mapped_column(ARRAY(Text), nullable=False)
-    secondary_muscles: Mapped[list[str]] = mapped_column(ARRAY(Text), nullable=False)
-    tertiary_muscles: Mapped[list[str]] = mapped_column(ARRAY(Text), nullable=False)
-    equipment_required: Mapped[list[str]] = mapped_column(ARRAY(Text), nullable=False)
+    name: Mapped[str] = mapped_column(
+        String,
+        nullable=False
+    )
 
+    type: Mapped[str] = mapped_column(
+        String,
+        nullable=False
+    )
+
+    difficulty_level: Mapped[str] = mapped_column(
+        String,
+        nullable=False
+    )
+
+    force_type: Mapped[str] = mapped_column(
+        String,
+        nullable=False
+    )
+
+    mechanics: Mapped[str] = mapped_column(
+        String,
+        nullable=False
+    )
+
+    category: Mapped[str] = mapped_column(
+        String,
+        nullable=False
+    )
+
+    instructions: Mapped[str] = mapped_column(
+        Text,
+        nullable=False
+    )
+
+    primary_muscles: Mapped[list[str]] = mapped_column(
+        ARRAY(Text),
+        nullable=False
+    )
+
+    secondary_muscles: Mapped[list[str]] = mapped_column(
+        ARRAY(Text),
+        nullable=False
+    )
+
+    tertiary_muscles: Mapped[list[str]] = mapped_column(
+        ARRAY(Text),
+        nullable=False
+    )
+
+    equipment_required: Mapped[list[str]] = mapped_column(
+        ARRAY(Text),
+        nullable=False
+    )
+
+    # -------------------------
     # FitStack enrichment
-    exercise_family: Mapped[str] = mapped_column(String, nullable=False)
-    movement_pattern: Mapped[str] = mapped_column(String, nullable=False)
-    training_role: Mapped[list[str]] = mapped_column( ARRAY(Text), nullable=False)
-    unilateral: Mapped[bool] = mapped_column(nullable=False)
-    load_type: Mapped[str] = mapped_column(String, nullable=False)
-    progression_methods: Mapped[list[str]] = mapped_column(ARRAY(Text), nullable=False)
-    substitution_group: Mapped[str | None] = mapped_column(String, nullable=True)
-    goal_suitability: Mapped[list[str]] = mapped_column(ARRAY(Text), nullable=False)
+    # -------------------------
 
-    mobility_requirements: Mapped[list[str]] = mapped_column(ARRAY(Text), nullable=False)
-    balance_requirement: Mapped[str] = mapped_column(String, nullable=False)
-    stability_requirement: Mapped[str] = mapped_column(String, nullable=False)
-    fatigue_cost: Mapped[str] = mapped_column(String, nullable=False)
+    # These start as NULL because they will
+    # be populated during your enrichment step.
 
-    # pgvector
-    embedding: Mapped[list[float]] = mapped_column(Vector(1536), nullable=True)
+    exercise_family: Mapped[str | None] = mapped_column(
+        String,
+        nullable=True
+    )
 
-class ExercisePrescription(Base):
-    __tablename__ = "exercise_prescriptions"
+    movement_pattern: Mapped[str | None] = mapped_column(
+        String,
+        nullable=True
+    )
 
-    prescription_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True),primary_key=True,default=uuid.uuid4)
-    exercise_id: Mapped[str] = mapped_column(String, nullable=False)
-    goal: Mapped[str] = mapped_column(String,nullable=False)
-    sets_min: Mapped[int] = mapped_column(nullable=False)
-    sets_max: Mapped[int] = mapped_column(nullable=False)
-    reps_min: Mapped[int] = mapped_column(nullable=False)
-    reps_max: Mapped[int] = mapped_column(nullable=False)
-    rest_seconds: Mapped[int] = mapped_column(nullable=False)
-    target_rpe_min: Mapped[float] = mapped_column(nullable=False)
-    target_rpe_max: Mapped[float] = mapped_column(nullable=False)
+    training_role: Mapped[list[str] | None] = mapped_column(
+        ARRAY(Text),
+        nullable=True
+    )
+
+    unilateral: Mapped[bool | None] = mapped_column(
+        nullable=True
+    )
+
+    load_type: Mapped[str | None] = mapped_column(
+        String,
+        nullable=True
+    )
+
+    progression_methods: Mapped[list[str] | None] = mapped_column(
+        ARRAY(Text),
+        nullable=True
+    )
+
+    substitution_group: Mapped[str | None] = mapped_column(
+        String,
+        nullable=True
+    )
+
+    goal_suitability: Mapped[list[str] | None] = mapped_column(
+        ARRAY(Text),
+        nullable=True
+    )
+
+    mobility_requirements: Mapped[list[str] | None] = mapped_column(
+        ARRAY(Text),
+        nullable=True
+    )
+
+    balance_requirement: Mapped[str | None] = mapped_column(
+        String,
+        nullable=True
+    )
+
+    stability_requirement: Mapped[str | None] = mapped_column(
+        String,
+        nullable=True
+    )
+
+    fatigue_cost: Mapped[str | None] = mapped_column(
+        String,
+        nullable=True
+    )
+
+    # -------------------------
+    # Search / embeddings
+    # -------------------------
+
+    searchable_text: Mapped[str | None] = mapped_column(
+        Text,
+        nullable=True
+    )
+
+    embedding: Mapped[list[float] | None] = mapped_column(
+        Vector(1536),
+        nullable=True
+    )
+
+    embedding_model: Mapped[str | None] = mapped_column(
+        String,
+        nullable=True
+    )
+
+    # -------------------------
+    # Source
+    # -------------------------
+
+    source: Mapped[str] = mapped_column(
+        String,
+        nullable=False,
+        default="kinetic"
+    )
+
+    source_id: Mapped[str | None] = mapped_column(
+        String,
+        nullable=True
+    )
+
+    # -------------------------
+    # Relationships
+    # -------------------------
+
+    prescriptions: Mapped[list["ExercisePrescription"]] = relationship(
+        "ExercisePrescription",
+        back_populates="exercise",
+        cascade="all, delete-orphan"
+    )
+
+    workout_plan_exercises: Mapped[list["WorkoutPlanExercise"]] = relationship(
+        "WorkoutPlanExercise",
+        back_populates="exercise"
+    )
+
 

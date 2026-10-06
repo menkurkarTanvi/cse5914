@@ -1,0 +1,67 @@
+START
+  │
+  ▼
+load_user_context
+  │
+  ▼
+get_active_program
+  │
+  ├────────────── NO ──────────────────┐
+  │                                    ▼
+  │                         get_recent_performance
+  │                                    │
+  │                                    ▼
+  │                           analyze_progress
+  │                                    │
+  │                                    ▼
+  │                           retrieve_exercises
+  │                                    │
+  │                                    ▼
+  │                       generate_workout_program
+  │                                    │
+  │                                    ▼
+  │                        validate_workout_plan
+  │                              │           │
+  │                         valid │           │ invalid
+  │                              ▼           └──────┐
+  │                         save_program            │
+  │                              │                 │
+  │                              └─────────────────┘
+  │
+  │
+  └────────────── YES ─────────────────┐
+                                       ▼
+                              get_current_workout
+                                       │
+                                       ▼
+                            get_recent_performance
+                                       │
+                                       ▼
+                               get_workout_feedback
+                                       │
+                                       ▼
+                              analyze_progress
+                                       │
+                                       ▼
+                             apply_progression
+                                       │
+                                       ▼
+                              apply_feedback
+                                       │
+                                       ▼
+                         validate_workout_plan
+                              │             │
+                         valid│             │invalid
+                              ▼             ▼
+                         save_changes   retrieve_exercises
+                              │             │
+                              │             ▼
+                              │        replace_exercise
+                              │             │
+                              │             ▼
+                              │      validate_workout
+                              │             │
+                              └─────────────┘
+                                    │
+                                    ▼
+                                  END

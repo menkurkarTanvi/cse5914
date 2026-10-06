@@ -11,3 +11,7 @@ asyncpg==0.31.0
 # Security & Authentication
 pwdlib[argon2]
 pyjwt[crypto]
+
+#AI
+langgraph>=0.2.0
+langchain-google-genai>=2.0.0

@@ -30,4 +30,31 @@ class User(Base):
         nullable=False
     )
 
-    profile: Mapped[Profile] = relationship("Profile", back_populates="user", uselist=False)
+    # One-to-one with Profile
+    profile: Mapped["Profile"] = relationship(
+        "Profile",
+        back_populates="user",
+        uselist=False,
+        cascade="all, delete-orphan"
+    )
+
+    # One-to-many with UserAvailability
+    availability: Mapped[list["UserAvailability"]] = relationship(
+        "UserAvailability",
+        back_populates="user",
+        cascade="all, delete-orphan"
+    )
+
+    # One-to-many with WorkoutProgram
+    workout_programs: Mapped[list["WorkoutProgram"]] = relationship(
+        "WorkoutProgram",
+        back_populates="user",
+        cascade="all, delete-orphan"
+    )
+
+    # One-to-many with WorkoutFeedback
+    workout_feedback: Mapped[list["WorkoutFeedback"]] = relationship(
+        "WorkoutFeedback",
+        back_populates="user",
+        cascade="all, delete-orphan"
+    )
