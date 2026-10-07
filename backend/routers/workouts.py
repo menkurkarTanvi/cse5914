@@ -24,4 +24,5 @@ async def get_workout_plan(user_id: CurrentUserId, db: AsyncSession = Depends(ge
     #Get the current date and time in UTC timezone
     #If the current date is NOT Monday, return the users last workout plan from the database.
     #If the current date, is Monday, invoke the function to generate a new workout plan for the user and return it. 
+    
     pass

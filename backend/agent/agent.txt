@@ -1,67 +1,65 @@
-START
-  │
-  ▼
-load_user_context
-  │
-  ▼
-get_active_program
-  │
-  ├────────────── NO ──────────────────┐
-  │                                    ▼
-  │                         get_recent_performance
-  │                                    │
-  │                                    ▼
-  │                           analyze_progress
-  │                                    │
-  │                                    ▼
-  │                           retrieve_exercises
-  │                                    │
-  │                                    ▼
-  │                       generate_workout_program
-  │                                    │
-  │                                    ▼
-  │                        validate_workout_plan
-  │                              │           │
-  │                         valid │           │ invalid
-  │                              ▼           └──────┐
-  │                         save_program            │
-  │                              │                 │
-  │                              └─────────────────┘
-  │
-  │
-  └────────────── YES ─────────────────┐
-                                       ▼
-                              get_current_workout
-                                       │
-                                       ▼
-                            get_recent_performance
-                                       │
-                                       ▼
-                               get_workout_feedback
-                                       │
-                                       ▼
-                              analyze_progress
-                                       │
-                                       ▼
-                             apply_progression
-                                       │
-                                       ▼
-                              apply_feedback
-                                       │
-                                       ▼
-                         validate_workout_plan
-                              │             │
-                         valid│             │invalid
-                              ▼             ▼
-                         save_changes   retrieve_exercises
-                              │             │
-                              │             ▼
-                              │        replace_exercise
-                              │             │
-                              │             ▼
-                              │      validate_workout
-                              │             │
-                              └─────────────┘
-                                    │
-                                    ▼
-                                  END
+                              START
+                                │
+                                ▼
+                    ┌─────────────────────┐
+                    │ Load User Context   │
+                    │ Profile             │
+                    │ Availability        │
+                    │ Current Program     │
+                    └──────────┬──────────┘
+                               │
+                               ▼
+                  ┌────────────────────────┐
+                  │ Active 4-week program? │
+                  └───────────┬────────────┘
+                         NO   │   YES
+                     ┌────────┘   └────────┐
+                     ▼                     ▼
+             NEW PROGRAM PATH       CURRENT PROGRAM PATH
+                     │                     │
+                     ▼                     ▼
+              Analyze starting       Load upcoming
+                 point               workout
+                     │                     │
+                     ▼                     ▼
+              Retrieve exercises     Load recent
+                     │               performance
+                     ▼                     │
+              Generate 4-week              ▼
+                program              Analyze progression
+                     │                     │
+                     ▼                     ▼
+                Validate             Apply progression
+                     │                     │
+                     ▼                     ▼
+                 Save DB          Profile changed?
+                     │                /       \
+                     │              NO         YES
+                     │              │            │
+                     │              │            ▼
+                     │              │      Check existing
+                     │              │       exercises
+                     │              │            │
+                     │              │            ▼
+                     │              │       Any exercise
+                     │              │       now invalid?
+                     │              │          /    \
+                     │              │        NO      YES
+                     │              │        │         │
+                     │              │        │         ▼
+                     │              │        │   Retrieve replacement
+                     │              │        │         │
+                     │              │        │         ▼
+                     │              │        │   Swap affected
+                     │              │        │     exercise(s)
+                     │              │        │         │
+                     │              └────────┴─────────┘
+                     │                           │
+                     └───────────────────────────┘
+                                 │
+                                 ▼
+                        Validate upcoming
+                             workout
+                                 │
+                                 ▼
+                                END

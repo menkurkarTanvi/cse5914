@@ -168,21 +168,6 @@ class Exercise(Base):
     )
 
     # -------------------------
-    # Source
-    # -------------------------
-
-    source: Mapped[str] = mapped_column(
-        String,
-        nullable=False,
-        default="kinetic"
-    )
-
-    source_id: Mapped[str | None] = mapped_column(
-        String,
-        nullable=True
-    )
-
-    # -------------------------
     # Relationships
     # -------------------------
 

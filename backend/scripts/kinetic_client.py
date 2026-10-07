@@ -26,3 +26,4 @@ def fetch_exercise(exercise_id: str) -> dict:
     response = httpx.get(f"{BASE_URL}/exercises/{exercise_id}", timeout=10)
     response.raise_for_status()
     return response.json()
+
