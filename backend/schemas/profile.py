@@ -1,19 +1,14 @@
 from pydantic import BaseModel
 
+class Availability(BaseModel):
+    day_of_week: str
+    max_availability: int
+
 class ProfileRequest(BaseModel):
+    weekly_availability: list[Availability]
     pass
+
+
 
 #-----------------------------------------------------------------------
-
-class Exercise(BaseModel):
-    pass
-
-class WorkOutPlan(BaseModel):
-    day_of_week: str
-    description: str
-    exercises: list[Exercise]
-
-class WorkOutPlanResponse(BaseModel):
-    workout_plan_description: str
-    workout_plan_list: list[WorkOutPlan]
 

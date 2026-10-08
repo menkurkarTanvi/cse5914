@@ -22,7 +22,7 @@ class Profile(Base):
 
     # One-to-one relationship with User
     user_id: Mapped[uuid.UUID] = mapped_column(
-        ForeignKey("users.id", ondelete="CASCADE"),
+        ForeignKey("users.id", ondelete="CASCADE"), 
         unique=True,
         nullable=False
     )

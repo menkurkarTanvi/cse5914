@@ -4,13 +4,8 @@ from agent.state import WorkoutAgentState
 from models.profile import Profile
 from models.user_availability import UserAvailability
 
-
-# Days/week thresholds for picking a split. Chosen to match common
-# programming conventions — adjust freely if your generation step
-# wants different cutoffs.
-MIN_DAYS_FOR_UPPER_LOWER = 3
-MIN_DAYS_FOR_PPL = 5
-
+#PLEASE REFER TO THE WORKOUTAGENTSTATE. This state is common amongst all nodes in the graph
+#Each function will perform some operations to update the WorkoutAgentState
 
 async def analyze_starting_point(state: WorkoutAgentState) -> dict:
    pass

@@ -36,4 +36,4 @@ async def get_profile( user_id: CurrentUserId, db: AsyncSession = Depends(get_db
     profile = profile.scalar_one_or_none()
     if not profile:
         raise HTTPException(status_code=404, detail="Profile not found")
-    return profile
+    return profile 
