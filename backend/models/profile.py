@@ -14,11 +14,17 @@ from database.database import Base
 class Profile(Base):
     __tablename__ = "profiles"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4
+    )
 
-    #Foreign key to the user table, one-to-one relationship with the users
+    # One-to-one relationship with User
     user_id: Mapped[uuid.UUID] = mapped_column(
-        ForeignKey("users.id"), unique=True, nullable=False
+        ForeignKey("users.id", ondelete="CASCADE"),
+        unique=True,
+        nullable=False
     )
 
     goal: Mapped[str] = mapped_column(
@@ -31,17 +37,10 @@ class Profile(Base):
         nullable=False
     )
 
-    days_per_week: Mapped[int] = mapped_column(
-        nullable=False
-    )
-
-    session_duration_minutes: Mapped[int] = mapped_column(
-        nullable=False
-    )
-
     available_equipment: Mapped[list[str]] = mapped_column(
         ARRAY(Text),
-        nullable=False
+        nullable=False,
+        default=list
     )
 
     preferred_exercises: Mapped[list[str]] = mapped_column(
@@ -61,4 +60,8 @@ class Profile(Base):
         nullable=False,
         default=list
     )
-    user: Mapped[User] = relationship("User", back_populates="profile")
+
+    user: Mapped["User"] = relationship(
+        "User",
+        back_populates="profile"
+    )

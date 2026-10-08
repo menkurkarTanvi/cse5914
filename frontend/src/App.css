@@ -753,3 +753,51 @@ select:focus {
     grid-template-columns: 1fr;
   }
 }
+
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #090a0b;
+  padding: 24px;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 430px;
+  padding: 34px;
+  background: #342a0d;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.auth-card .brand-name {
+  margin-bottom: 18px;
+}
+
+.auth-card h1 {
+  margin: 0 0 8px;
+  color: #f4f1e8;
+  font-size: 30px;
+}
+
+.auth-card > p {
+  color: #aaa69a;
+  margin: 0 0 26px;
+}
+
+.auth-card form {
+  display: grid;
+  gap: 18px;
+}
+
+.auth-card .gold-button {
+  margin-top: 4px;
+}
+
+.auth-link {
+  width: 100%;
+  margin-top: 20px;
+  text-align: center;
+}

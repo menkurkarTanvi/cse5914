@@ -9,7 +9,7 @@ from alembic import context
 from database.database import DATABASE_URL, Base
 import models.exercise
 import models.profile
-import models.workout_feedaback
+import models.workout_feedback
 import models.workout_plan
 import models.workout_plan_exercise
 import models.workout_program
