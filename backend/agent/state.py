@@ -173,11 +173,6 @@ class PerformanceState(TypedDict):
     actual_rpes: list[float | None]
 
 
-class WorkoutHistoryState(TypedDict):
-    workout_id: uuid.UUID
-    scheduled_date: date
-    status: WorkoutStatus
-
 
 # ============================================================
 # User feedback
@@ -287,7 +282,6 @@ class WorkoutAgentState(TypedDict, total=False):
     # --------------------------------------------------------
     # Training history
     # --------------------------------------------------------
-    recent_workouts: list[WorkoutHistoryState]
     recent_performance: list[PerformanceState]
 
     # --------------------------------------------------------
