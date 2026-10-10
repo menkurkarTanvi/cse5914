@@ -7,6 +7,7 @@ from database.database import get_db
 from models.profile import Profile
 from sqlalchemy import select
 from schemas.profile import WorkoutPlanResponse
+import uuid
 
 # Prefix tag
 router = APIRouter(
@@ -17,7 +18,8 @@ router = APIRouter(
 @router.get("/workoutPlan")
 async def get_workout_plan(user_id: CurrentUserId, db: AsyncSession = Depends(get_db)) -> WorkoutPlanResponse:
     #Check if the user has a profile in the database. If not, return no workout plan and a message indicating that the user needs to create a profile first.
-    profile = await db.execute(select(Profile).where(Profile.user_id == user_id))
+    user_uuid = uuid.UUID(user_id)
+    profile = await db.execute(select(Profile).where(Profile.user_id == user_uuid))
     profile = profile.scalar_one_or_none()
     if not profile:
         return None

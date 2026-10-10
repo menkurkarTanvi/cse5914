@@ -85,6 +85,7 @@ class WorkoutPlanExercise(Base):
         nullable=True
     )
 
+    #------------------Relationships---------------------------------
     workout: Mapped["WorkoutPlan"] = relationship(
         "WorkoutPlan",
         back_populates="exercises"

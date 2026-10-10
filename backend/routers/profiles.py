@@ -1,11 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from services.user_service import User_Service
-from schemas.profile import ProfileRequest
+from schemas.profile import CreateProfileRequest, ProfileWithAvailabilityResponse
 from database.database import get_db
 from models.profile import Profile
+from models.user_availability import UserAvailability
 from sqlalchemy import select
 from dependencies import CurrentUserId
+import uuid
 
 # Prefix tag
 router = APIRouter(
@@ -13,27 +15,38 @@ router = APIRouter(
     tags=["profiles"]
 )
 
-@router.post("/createProfile")
-async def create_profile(profile_request: ProfileRequest, db: AsyncSession = Depends(get_db)):
-    #Get the user_id from the JWT token using the get_current_user_id function from the User_Service class.
-    user_id = await User_Service.get_current_user_id()
-    #Check if the user already has a profile in the database, if it does, return an HTTPException with a 400 status code and a message indicating that the profile already exists.
-    existing_profile = await db.execute(select(Profile).where(Profile.user_id == user_id))
-    existing_profile = existing_profile.scalar_one_or_none()
-    if existing_profile:
-        raise HTTPException(status_code=400, detail="Profile already exists")
-    
-    #Create a new profile object and add it to the database. The profile should be associated with the user_id obtained from the JWT token.
-    new_profile = Profile(user_id=user_id, **profile_request.dict())
-    db.add(new_profile)
-    await db.commit()
-    return new_profile
+DAY_ORDER = {
+    day: i
+    for i, day in enumerate(
+        ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+    )
+}
 
-@router.get("/profile")
-async def get_profile( user_id: CurrentUserId, db: AsyncSession = Depends(get_db)):
-    #Retrieve the profile from the database based on the user_id obtained from the JWT token. If no profile is found, return an HTTPException with a 404 status code and a message indicating that the profile was not found.
-    profile = await db.execute(select(Profile).where(Profile.user_id == user_id))
-    profile = profile.scalar_one_or_none()
-    if not profile:
+@router.post("/createProfile", status_code=201)
+async def create_profile(
+    payload: CreateProfileRequest,
+    user_id: CurrentUserId,
+    db: AsyncSession = Depends(get_db),
+):
+    user_uuid = uuid.UUID(user_id)  # JWT 'sub' is a string; the columns are UUID
+    
+
+@router.get("/profile", response_model=ProfileWithAvailabilityResponse)
+async def get_profile(user_id: CurrentUserId, db: AsyncSession = Depends(get_db)):
+    user_uuid = uuid.UUID(user_id)
+
+    result = await db.execute(select(Profile).where(Profile.user_id == user_uuid))
+    profile = result.scalar_one_or_none()
+    if profile is None:
         raise HTTPException(status_code=404, detail="Profile not found")
-    return profile 
+
+    #Get the users availiability from monday - sunday
+    result = await db.execute(
+        select(UserAvailability).where(UserAvailability.user_id == user_uuid)
+    )
+    availability = sorted(
+        result.scalars().all(),
+        key=lambda a: DAY_ORDER.get(a.day_of_week, len(DAY_ORDER)),
+    )
+
+    return {"profile": profile, "availability": availability}

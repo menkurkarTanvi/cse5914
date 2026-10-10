@@ -1,7 +1,5 @@
 # agent/state.py
 
-# agent/state.py
-
 from __future__ import annotations
 
 import uuid
@@ -109,6 +107,8 @@ class WorkoutState(TypedDict):
 class ExerciseState(TypedDict):
     exercise_id: str
     name: str
+    primary_muscles: list[str]
+    secondary_muscles: list[str]
     exercise_family: str | None
     movement_pattern: str | None
     training_role: list[str] | None
@@ -130,11 +130,31 @@ class ExerciseCandidateState(TypedDict):
     similarity_score: float
 
 
+# One exercise in the upcoming workout: its prescription (a
+# WorkoutPlanExercise row) plus the exercise details.
+class PlannedExerciseState(TypedDict):
+    workout_plan_exercise_id: uuid.UUID
+    exercise_order: int
+    sets_planned: int
+    reps_min: int
+    reps_max: int
+    target_rpe_min: float | None
+    target_rpe_max: float | None
+    rest_seconds: int
+    planned_weight: float | None
+    weight_unit: str
+    progression_method: str | None
+    notes: str | None
+    exercise: ExerciseState
+
+
 # ============================================================
 # Training history / performance
 # ============================================================
 
 class PerformanceState(TypedDict):
+    workout_id: uuid.UUID
+    scheduled_date: date
     workout_plan_exercise_id: uuid.UUID
     exercise_id: str
 
@@ -145,8 +165,9 @@ class PerformanceState(TypedDict):
     target_rpe_min: float | None
     target_rpe_max: float | None
     planned_weight: float | None
+    weight_unit: str
 
-    # Actual performance
+    # Actual performance (completed sets only, ordered by set_number)
     actual_reps: list[int]
     actual_weights: list[float | None]
     actual_rpes: list[float | None]
@@ -261,6 +282,7 @@ class WorkoutAgentState(TypedDict, total=False):
     # --------------------------------------------------------
     active_program: ProgramState | None
     current_workout: WorkoutState | None
+    current_workout_exercises: list[PlannedExerciseState]
 
     # --------------------------------------------------------
     # Training history

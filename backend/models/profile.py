@@ -61,6 +61,8 @@ class Profile(Base):
         default=list
     )
 
+    #------Relationships
+
     user: Mapped["User"] = relationship(
         "User",
         back_populates="profile"

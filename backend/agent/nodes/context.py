@@ -71,7 +71,7 @@ async def load_user_context(state: WorkoutAgentState) -> dict:
 
         current_workout = None
         if active_program is not None:
-            current_workout = await session.scalar(
+            current_workout = await session.scalar( 
                 select(WorkoutPlan)
                 .where(
                     WorkoutPlan.program_id == active_program.program_id,

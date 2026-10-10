@@ -1,25 +1,31 @@
-from google import genai
-from google.genai import types
+# enrichment/embeddings.py
 
-import os
-
-
-client = genai.Client(
-    api_key=os.environ["GEMINI_API_KEY"]
-)
+from .openai_client import client
 
 
-EMBEDDING_MODEL = "gemini-embedding-001"
+EMBEDDING_MODEL = "text-embedding-3-small"
+EMBEDDING_DIMENSIONS = 1536
 
-#Generate embedding for the given text using the Gemini embedding model.
-def generate_embedding(text: str) -> list[float]:
 
-    response = client.models.embed_content(
+async def generate_embedding(text: str) -> list[float]:
+    """Generate an OpenAI embedding for exercise searchable text."""
+
+    if not text or not text.strip():
+        raise ValueError("Cannot generate an embedding from empty text.")
+
+    response = await client.embeddings.create(
         model=EMBEDDING_MODEL,
-        contents=text,
-        config=types.EmbedContentConfig(
-            output_dimensionality=1536,
-        ),
+        input=text,
+        dimensions=EMBEDDING_DIMENSIONS,
+        encoding_format="float",
     )
 
-    return response.embeddings[0].values
+    embedding = response.data[0].embedding
+
+    if len(embedding) != EMBEDDING_DIMENSIONS:
+        raise ValueError(
+            f"Expected {EMBEDDING_DIMENSIONS} dimensions, "
+            f"received {len(embedding)}."
+        )
+
+    return embedding
