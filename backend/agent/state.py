@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import date
-from typing import Literal, TypedDict
+from typing import Literal, NotRequired, TypedDict
 
 
 # ============================================================
@@ -125,9 +125,26 @@ class ExerciseState(TypedDict):
     difficulty_level: str
 
 
+# Baseline set/rep guidance for one exercise and goal. Comes from the
+# exercise_prescriptions table, or a mechanics-based fallback when the
+# exercise has no row yet.
+class PrescriptionState(TypedDict):
+    sets_min: int
+    sets_max: int
+    reps_min: int
+    reps_max: int
+    rest_seconds: int
+    target_rpe_min: float
+    target_rpe_max: float
+
+
 class ExerciseCandidateState(TypedDict):
     exercise: ExerciseState
     similarity_score: float
+    # Filled in by retrieve_candidate_exercises for new program generation.
+    prescription: NotRequired[PrescriptionState]
+    is_compound: NotRequired[bool]
+    category: NotRequired[str]
 
 
 # One exercise in the upcoming workout: its prescription (a
