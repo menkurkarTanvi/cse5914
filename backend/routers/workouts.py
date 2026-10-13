@@ -14,6 +14,10 @@ router = APIRouter(
     tags=["workouts"]
 )
 
+@router.get("/swapExercise")
+async def swap_exercise(user_id: CurrentUserId, db: AsyncSession = Depends(get_db)):
+    pass
+
 @router.post("/saveUserWorkoutInfo")
 async def save_workout_info(user_id: CurrentUserId, db: AsyncSession = Depends(get_db)):
     #METHOD EXPLANATION: this method is the save the the users actual completed sets, reps, weight, etc for a workout
