@@ -94,6 +94,7 @@ class ProgramState(TypedDict):
 class WorkoutState(TypedDict):
     workout_id: uuid.UUID
     program_id: uuid.UUID
+    description: str
     week_number: int
     day_of_week: DayOfWeek
     scheduled_date: date

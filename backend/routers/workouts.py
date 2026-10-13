@@ -14,6 +14,11 @@ router = APIRouter(
     tags=["workouts"]
 )
 
+@router.post("/saveUserWorkoutInfo")
+async def save_workout_info(user_id: CurrentUserId, db: AsyncSession = Depends(get_db)):
+    #METHOD EXPLANATION: this method is the save the the users actual completed sets, reps, weight, etc for a workout
+    pass
+
 @router.get("/workoutPlan")
 async def get_workout_plan(user_id: CurrentUserId, db: AsyncSession = Depends(get_db)) -> None:
     #Check if the user has a profile in the database. If not, return no workout plan and a message indicating that the user needs to create a profile first.

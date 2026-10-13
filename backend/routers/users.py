@@ -9,6 +9,7 @@ router = APIRouter(
     prefix="/users",
     tags=["users"]
 )
+DUMMY_HASH = User_Service.password_hash.hash("not-a-real-password")
 
 @router.post("/login")
 async def login(credentials: LoginRequest, db: AsyncSession = Depends(get_db)):
@@ -18,7 +19,7 @@ async def login(credentials: LoginRequest, db: AsyncSession = Depends(get_db)):
     # Always verify against *something* so a missing user and a wrong
     # password take the same amount of time — prevents timing-based
     # email enumeration.
-    hashed_password = user.hashed_password
+    hashed_password = user.hashed_password if user else DUMMY_HASH
     password_valid = await user_service.verify_password(
         credentials.password, hashed_password
     )

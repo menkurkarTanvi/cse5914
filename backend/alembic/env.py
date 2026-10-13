@@ -7,13 +7,7 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from alembic import context
 from database.database import DATABASE_URL, Base
-import models.exercise
-import models.profile
-import models.workout_feedback
-import models.workout_plan
-import models.workout_plan_exercise
-import models.workout_program
-import models.workout_set
+import models  # noqa: F401  (registers every model)
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
