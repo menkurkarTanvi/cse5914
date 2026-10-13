@@ -20,11 +20,14 @@ import type {
 } from './types'
 
 function App() {
-  const [page, setPage] =
-    useState<Page>('login')
-
   const [token, setToken] = useState<string | null>(
     localStorage.getItem('token'),
+  )
+
+  const [page, setPage] = useState<Page>(
+    localStorage.getItem('token')
+      ? 'dashboard'
+      : 'login',
   )
 
   const loggedIn = token !== null
@@ -52,20 +55,20 @@ function App() {
     setPage('login')
   }
 
-  function swapExercise(index: number) {
-    const replacements = [
-      'Dumbbell Bench Press',
-      'Machine Chest Press',
-      'Arnold Press',
-      'Cable Lateral Raise',
-    ]
-
+  function swapExercise(
+    index: number,
+    replacement: {
+      id: string
+      name: string
+    },
+  ) {
     setExercises((current) =>
       current.map((exercise, i) =>
         i === index
           ? {
               ...exercise,
-              name: replacements[index],
+              id: replacement.id,
+              name: replacement.name,
             }
           : exercise,
       ),
