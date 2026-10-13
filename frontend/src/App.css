@@ -875,3 +875,157 @@ select:focus {
     max-width: 145px;
   }
 }
+
+/* TB3 Week 1 - workout interaction UI */
+
+.exercise-block {
+  display: grid;
+  gap: 10px;
+}
+
+.swap-panel {
+  background: #121315;
+  border: 1px solid #333438;
+  border-radius: 8px;
+  padding: 14px;
+
+  display: grid;
+  gap: 10px;
+}
+
+.swap-panel h3,
+.completion-panel h3,
+.workout-feedback h3 {
+  margin: 0;
+  font-size: 15px;
+}
+
+.alternative-row {
+  background: var(--panel-soft);
+  border-radius: 7px;
+  padding: 12px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 16px;
+}
+
+.alternative-row strong,
+.alternative-row span,
+.alternative-row small {
+  display: block;
+}
+
+.alternative-row span {
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.alternative-row small {
+  color: #807c72;
+  margin-top: 5px;
+}
+
+.completion-panel {
+  margin-top: 26px;
+
+  border-top:
+    1px solid
+    rgba(255, 255, 255, 0.08);
+
+  padding-top: 22px;
+}
+
+.completion-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 16px;
+
+  margin-bottom: 22px;
+}
+
+.completion-heading p {
+  margin-top: 6px;
+}
+
+.exercise-log {
+  margin-top: 18px;
+
+  padding: 15px;
+
+  background: var(--panel-soft);
+
+  border-radius: 8px;
+}
+
+.set-log-header,
+.set-log-row {
+  display: grid;
+
+  grid-template-columns:
+    70px 1fr 1fr;
+
+  gap: 10px;
+
+  align-items: center;
+}
+
+.set-log-header {
+  color: var(--muted);
+
+  font-size: 11px;
+
+  text-transform: uppercase;
+
+  margin: 12px 0 6px;
+}
+
+.set-log-row {
+  margin-top: 8px;
+}
+
+.set-log-row > span {
+  color: var(--muted);
+}
+
+.workout-feedback {
+  margin-top: 22px;
+}
+
+.feedback-options {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, 1fr);
+
+  gap: 10px;
+
+  margin-top: 12px;
+}
+
+.workout-actions {
+  gap: 10px;
+}
+
+@media (max-width: 720px) {
+  .alternative-row,
+  .completion-heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .set-log-header,
+  .set-log-row {
+    grid-template-columns:
+      50px 1fr 1fr;
+  }
+
+  .feedback-options {
+    grid-template-columns: 1fr;
+  }
+}
