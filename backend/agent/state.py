@@ -104,7 +104,7 @@ class WorkoutState(TypedDict):
 # ============================================================
 # Exercise information
 # ============================================================
-
+ 
 class ExerciseState(TypedDict):
     exercise_id: str
     name: str

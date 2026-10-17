@@ -79,12 +79,6 @@ class WorkoutPlanExercise(Base):
         String,
         nullable=True
     )
-
-    notes: Mapped[str | None] = mapped_column(
-        Text,
-        nullable=True
-    )
-
     #------------------Relationships---------------------------------
     workout: Mapped["WorkoutPlan"] = relationship(
         "WorkoutPlan",

@@ -1,0 +1,114 @@
+-- Week 1 exercises for the four workouts in workout_plans.
+-- Split: Upper / Lower / Upper / Lower (Mon, Wed, Fri, Sat).
+-- Goal: hypertrophy. Equipment used: Barbell and Dumbbell only.
+--
+-- reps, RPE targets and rest come from exercise_prescriptions (goal =
+-- 'hypertrophy'), so they always agree with that table. sets_planned is 3
+-- for everything, which is inside the 2-4 / 3-4 range the table allows.
+-- planned_weight is a sample starting weight in lb (per dumbbell for
+-- dumbbell exercises). Change it to match the real user.
+ 
+INSERT INTO workout_plan_exercises (
+    id, workout_id, exercise_id, exercise_order, sets_planned,
+    reps_min, reps_max, target_rpe_min, target_rpe_max, rest_seconds,
+    planned_weight, weight_unit, progression_method, notes
+)
+SELECT
+    gen_random_uuid(),
+    wp.workout_id,
+    ep.exercise_id,
+    v.exercise_order,
+    v.sets_planned,
+    ep.reps_min,
+    ep.reps_max,
+    ep.target_rpe_min,
+    ep.target_rpe_max,
+    ep.rest_seconds,
+    v.planned_weight::double precision,
+    'lb',
+    v.progression_method,
+    NULL
+FROM (
+    VALUES
+        ('Monday', 1, 'd586b5aa-c2f4-4cb5-8038-d10b03c3b763', 3, 135, 'increase_weight'),  -- Barbell Bench Press
+        ('Monday', 2, '44ca00db-6c3b-4e4b-a3e0-1e44c2deda08', 3, 115, 'increase_weight'),  -- Bent Over Barbell Row
+        ('Monday', 3, 'd609bdf6-3be2-4206-9198-095e33fffbf8', 3, 35, 'increase_weight'),  -- Dumbbell Shoulder Press
+        ('Monday', 4, 'dc04b2c1-9a52-41c0-9dfd-eeb6e2639e55', 3, 25, 'increase_reps'),  -- Dumbbell Bicep Curl
+        ('Monday', 5, '09dcbf5c-97d1-4512-aa6c-84188f2faf47', 3, 25, 'increase_reps'),  -- Lying Dumbbell Tricep Extension
+        ('Wednesday', 1, '605ab3e8-4491-4737-aa22-f06598adadf5', 3, 155, 'increase_weight'),  -- Barbell Squat
+        ('Wednesday', 2, '15f4d417-d0fc-4e5d-b274-2f83a89f1c68', 3, 135, 'increase_weight'),  -- Romanian Deadlift
+        ('Wednesday', 3, 'c1bf50be-2329-4dd8-8306-834690dd42dc', 3, 35, 'increase_weight'),  -- Dumbbell Lunges
+        ('Wednesday', 4, 'b3d52f18-5439-4808-b81c-90063bd169ea', 3, 135, 'increase_reps'),  -- Standing Barbell Calf Raise
+        ('Friday', 1, '18a90d51-558e-4595-a721-19fa9fa68e06', 3, 45, 'increase_weight'),  -- Incline Dumbbell Press
+        ('Friday', 2, '25a42cb6-a4aa-4c88-a955-f131760c8a38', 3, 55, 'increase_weight'),  -- One-Arm Dumbbell Row
+        ('Friday', 3, 'a876c8d8-7630-4887-9b5f-2384b9a4c7fa', 3, 85, 'increase_weight'),  -- Standing Military Press
+        ('Friday', 4, 'f6f0744e-8c52-4323-87ee-21c25de4e24e', 3, 25, 'increase_reps'),  -- Hammer Curls
+        ('Friday', 5, '960b59d9-e989-4bf1-ad45-37f1e0868de2', 3, 15, 'increase_reps'),  -- Dumbbell Reverse Fly
+        ('Saturday', 1, '13a0f0b4-8dc3-49fd-8cc8-984ed8864684', 3, 185, 'increase_weight'),  -- Deadlift
+        ('Saturday', 2, '0d2914a1-143f-4c76-a712-d845972822bf', 3, 155, 'increase_weight'),  -- Barbell Hip Thrust
+        ('Saturday', 3, '533b4a8b-556a-4d88-93f6-576f677b7d0d', 3, 30, 'increase_weight'),  -- Split Squat with Dumbbells
+        ('Saturday', 4, '234dfc64-e4a8-4941-a9b0-fe8b2d8e71aa', 3, 40, 'increase_reps'),  -- Standing Dumbbell Calf Raise
+        ('Saturday', 5, '5f0bdce6-6be1-4cb2-ba44-73547fdd587c', 3, NULL, 'increase_reps')   -- Barbell Ab Rollout
+) AS v(day_of_week, exercise_order, exercise_id, sets_planned, planned_weight, progression_method)
+JOIN workout_plans wp
+  ON wp.week_number = 1
+ AND wp.day_of_week = v.day_of_week
+ AND wp.program_id = (
+        SELECT program_id
+        FROM workout_programs
+        WHERE user_id = '851a30d8-f5e5-4f45-9425-041f131660f9'
+          AND status = 'active'
+        ORDER BY start_date DESC
+        LIMIT 1
+     )
+JOIN exercise_prescriptions ep
+  ON ep.exercise_id = v.exercise_id
+ AND ep.goal = 'hypertrophy';
+-- Expect: INSERT 0 19. A smaller number means a join found nothing, for
+-- example the week 1 workouts were not created or an exercise_id has no
+-- hypertrophy prescription.
+ 
+ 
+-- Check the result: exercises per workout, in order.
+SELECT wp.day_of_week,
+       wp.scheduled_date,
+       wpe.exercise_order,
+       e.name,
+       wpe.sets_planned,
+       wpe.reps_min || '-' || wpe.reps_max AS reps,
+       wpe.target_rpe_min || '-' || wpe.target_rpe_max AS rpe,
+       wpe.rest_seconds,
+       wpe.planned_weight,
+       wpe.weight_unit,
+       wpe.progression_method
+FROM workout_plan_exercises wpe
+JOIN workout_plans wp ON wp.workout_id = wpe.workout_id
+JOIN exercises e ON e.exercise_id = wpe.exercise_id
+ORDER BY wp.scheduled_date, wpe.exercise_order;
+ 
+ 
+-- To run the insert again, delete these rows first. The unique constraint on
+-- (workout_id, exercise_order) makes a second insert fail rather than duplicate.
+-- DELETE FROM workout_plan_exercises
+-- WHERE workout_id IN (
+--     SELECT workout_id FROM workout_plans
+--     WHERE week_number = 1
+--       AND program_id = (SELECT program_id FROM workout_programs
+--                         WHERE user_id = '851a30d8-f5e5-4f45-9425-041f131660f9' AND status = 'active'
+--                         ORDER BY start_date DESC LIMIT 1)
+-- );
+ 
+ 
+-- Optional: name each workout using the new description column.
+-- UPDATE workout_plans
+-- SET description = CASE day_of_week
+--         WHEN 'Monday'    THEN 'Upper Body A'
+--         WHEN 'Wednesday' THEN 'Lower Body A'
+--         WHEN 'Friday'    THEN 'Upper Body B'
+--         WHEN 'Saturday'  THEN 'Lower Body B'
+--     END
+-- WHERE week_number = 1
+--   AND program_id = (SELECT program_id FROM workout_programs
+--                     WHERE user_id = '851a30d8-f5e5-4f45-9425-041f131660f9' AND status = 'active'
+--                     ORDER BY start_date DESC LIMIT 1);
+ 
