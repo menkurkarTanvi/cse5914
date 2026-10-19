@@ -16,6 +16,7 @@ router = APIRouter(
     tags=["workouts"]
 )
 
+#ADD THE CODE TO RETURN 3 SIMILAR EXERCISES
 @router.get("/swapExercise")
 async def swap_exercise(user_id: CurrentUserId, db: AsyncSession = Depends(get_db)):
     pass
@@ -33,12 +34,6 @@ async def get_workout_plan(user_id: CurrentUserId, db: AsyncSession = Depends(ge
     profile = await db.execute(select(Profile).where(Profile.user_id == user_uuid))
     profile = profile.scalar_one_or_none()
     if not profile:
-        # JSON response (no profile):
-        # {
-        #   "program": null,
-        #   "workouts": [],
-        #   "message": "Please create a profile before requesting a workout plan."
-        # }
         return {
             "program": None,
             "workouts": [],
@@ -48,13 +43,6 @@ async def get_workout_plan(user_id: CurrentUserId, db: AsyncSession = Depends(ge
     # Until agent is working, just return last week's workout plans
     workout_service = Workout_Service(db)
     plans = await workout_service.get_last_week_workout_plans(user_uuid, date.today())
-    print(plans)
-    # JSON response (no workouts found):
-    # {
-    #   "program": null,
-    #   "workouts": [],
-    #   "message": "No workouts found."
-    # }
     if not plans:
         return {"program": None, "workouts": [], "message": "No workouts found."}
 

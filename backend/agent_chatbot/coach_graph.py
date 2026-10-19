@@ -4,9 +4,9 @@ from functools import lru_cache
 
 from langgraph.graph import END, START, StateGraph
 
-from backend.agent_chatbot.nodes import coach
-from backend.agent_chatbot.nodes.coach import CoachState
-from backend.agent_chatbot.nodes import coach_changes, coach_intent, coach_swap
+from agent_chatbot.nodes import coach
+from agent_chatbot.nodes.coach import CoachState
+from agent_chatbot.nodes import coach_changes, coach_intent, coach_swap
 
 # AI coach graph. Each request runs it once: the chat history and any
 # pending proposal come in with the request, so no state is kept between

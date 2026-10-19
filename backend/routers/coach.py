@@ -2,8 +2,8 @@ import uuid
 
 from fastapi import APIRouter, HTTPException
 
-from backend.agent_chatbot.coach_llm import CoachUnavailableError, is_llm_error
-from backend.agent_chatbot.nodes.coach_changes import sign_pending_action, verify_pending_action
+from agent_chatbot.coach_llm import CoachUnavailableError, is_llm_error
+from agent_chatbot.nodes.coach_changes import sign_pending_action, verify_pending_action
 from dependencies import CurrentUserId
 from schemas.coach import CoachChatRequest, CoachChatResponse
 

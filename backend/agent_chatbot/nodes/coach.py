@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field
 from sqlalchemy import func, select
 from sqlalchemy.orm import defer
 
-from agent.coach_rules import STOP_WORDS
+from agent_chatbot.coach_rules import STOP_WORDS
 from agent.state import WorkoutAgentState
 
 if TYPE_CHECKING:

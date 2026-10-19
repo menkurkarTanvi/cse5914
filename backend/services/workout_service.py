@@ -37,7 +37,7 @@ class Workout_Service:
         if isinstance(user_id, str):
             user_id = uuid.UUID(user_id)
         today = today or date.today()
-        window_start = today - timedelta(days=7)
+        window_start = today + timedelta(days=7)
 
         result = await self.db.execute(
             select(WorkoutPlan)
@@ -47,8 +47,8 @@ class Workout_Service:
             )
             .where(
                 WorkoutProgram.user_id == user_id,
-                WorkoutPlan.scheduled_date >= window_start,
-                WorkoutPlan.scheduled_date < today,
+                WorkoutPlan.scheduled_date <= window_start,
+                WorkoutPlan.scheduled_date >= today,
             )
             .order_by(WorkoutPlan.scheduled_date)
             .options( 
