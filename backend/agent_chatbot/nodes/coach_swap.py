@@ -8,10 +8,10 @@ from sqlalchemy import Text, bindparam, select
 from sqlalchemy.dialects import postgresql
 from sqlalchemy.orm import defer
 
-from agent.coach_rules import PAIN_WORDS, SWAP_OPTION_COUNT, UNAVAILABLE_AFTER, UNAVAILABLE_BEFORE
-from agent.nodes.coach import CoachState, find_workout_exercise
+from backend.agent_chatbot.coach_rules import PAIN_WORDS, SWAP_OPTION_COUNT, UNAVAILABLE_AFTER, UNAVAILABLE_BEFORE
+from backend.agent_chatbot.nodes.coach import CoachState, find_workout_exercise
 from agent.nodes.new_program import _clean_terms, is_exercise_allowed, normalize_equipment, score_exercise
-from agent.program_rules import (
+from backend.agent_chatbot.program_rules import (
     ALWAYS_AVAILABLE_EQUIPMENT, BASE_CATEGORIES, EQUIPMENT_ALIASES,
     EQUIPMENT_PREFERENCE, EXTRA_CATEGORIES_BY_GOAL, STAPLE_KEYWORDS,
 )

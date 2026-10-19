@@ -11,13 +11,13 @@ import asyncio
 from httpx import ASGITransport, AsyncClient
 from langchain_google_genai.chat_models import ChatGoogleGenerativeAIError
 
-from agent.coach_graph import build_coach_graph
+from backend.agent_chatbot.coach_graph import build_coach_graph
 from coach_fakes import USER_ID, FakeLLM, fake_context, workout
 from core.auth import create_access_token
 
 
 def call_route(monkeypatch, llm, body):
-    import agent.coach_graph as coach_graph
+    import backend.agent_chatbot.coach_graph as coach_graph
     from main import app
 
     graph = build_coach_graph(llm, load_context=fake_context(workout()))

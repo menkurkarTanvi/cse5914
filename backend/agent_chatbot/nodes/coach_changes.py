@@ -12,7 +12,7 @@ from agent.coach_rules import (
     ACCESSORY_MIN_SETS, EASIER_RPE_SHIFT, EASIER_WEIGHT_FACTOR, HARDER_RPE_SHIFT,
     HARDER_WEIGHT_FACTOR, MAX_SETS, MIN_SETS, PENDING_ACTION_AUDIENCE, PENDING_ACTION_MINUTES,
 )
-from agent.nodes.coach import CoachState, find_workout_exercise
+from backend.agent_chatbot.nodes.coach import CoachState, find_workout_exercise
 from agent.nodes.new_program import _estimate_seconds
 
 # AI coach: propose changes to today's workout (shorten, easier/harder),

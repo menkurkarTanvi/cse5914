@@ -15,8 +15,8 @@ import pytest
 from fastapi import HTTPException
 from sqlalchemy.orm.exc import StaleDataError
 
-from agent import coach_rules
-from agent.nodes import coach_changes
+from backend.agent_chatbot import coach_rules
+from backend.agent_chatbot.nodes import coach_changes
 from coach_fakes import USER_ID, WORKOUT_ID, planned, run, workout
 from core.auth import create_access_token, get_current_user_id
 

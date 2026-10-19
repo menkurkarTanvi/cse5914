@@ -2,8 +2,8 @@ import uuid
 
 from fastapi import APIRouter, HTTPException
 
-from agent.coach_llm import CoachUnavailableError, is_llm_error
-from agent.nodes.coach_changes import sign_pending_action, verify_pending_action
+from backend.agent_chatbot.coach_llm import CoachUnavailableError, is_llm_error
+from backend.agent_chatbot.nodes.coach_changes import sign_pending_action, verify_pending_action
 from dependencies import CurrentUserId
 from schemas.coach import CoachChatRequest, CoachChatResponse
 
@@ -21,7 +21,7 @@ async def chat(payload: CoachChatRequest, user_id: CurrentUserId):
     The client keeps the conversation: send the earlier turns in ``history``
     and the previous response's ``pending_action`` back unchanged.
     """
-    from agent.coach_graph import get_coach_graph
+    from backend.agent_chatbot.coach_graph import get_coach_graph
 
     try:
         graph = get_coach_graph()

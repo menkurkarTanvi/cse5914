@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 from sqlalchemy import select
 from sqlalchemy.orm import defer
 
-from agent.program_rules import (
+from backend.agent_chatbot.program_rules import (
     PROGRAM_WEEKS, DEFAULT_WEIGHT_UNIT, DAY_ORDER, MAX_DAYS_BY_EXPERIENCE,
     MAX_EXERCISES_BY_EXPERIENCE, ALLOWED_DIFFICULTY, PREFERRED_DIFFICULTY,
     BASE_CATEGORIES, EXTRA_CATEGORIES_BY_GOAL, ALWAYS_AVAILABLE_EQUIPMENT,

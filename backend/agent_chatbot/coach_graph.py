@@ -4,8 +4,9 @@ from functools import lru_cache
 
 from langgraph.graph import END, START, StateGraph
 
-from agent.nodes import coach, coach_changes, coach_intent, coach_swap
-from agent.nodes.coach import CoachState
+from backend.agent_chatbot.nodes import coach
+from backend.agent_chatbot.nodes.coach import CoachState
+from backend.agent_chatbot.nodes import coach_changes, coach_intent, coach_swap
 
 # AI coach graph. Each request runs it once: the chat history and any
 # pending proposal come in with the request, so no state is kept between
@@ -64,6 +65,6 @@ def build_coach_graph(llm, load_context=coach.load_coach_context):
 
 @lru_cache(maxsize=1)
 def get_coach_graph():
-    from agent.coach_llm import get_coach_llm
+    from backend.agent_chatbot.coach_llm import get_coach_llm
 
     return build_coach_graph(get_coach_llm())

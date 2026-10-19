@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import PageHeader from '../components/PageHeader'
 import type { Page } from '../types'
 
@@ -23,6 +23,45 @@ type DayAvailability = {
   minutes: number
 }
 
+// Backend address, and the part of the GET /profiles/profile response we use
+const API_URL = 'http://localhost:8000'
+
+type LoadedProfile = {
+  profile: {
+    goal: string
+    experience_level: string
+    available_equipment: string[]
+    limitations: string[]
+  }
+  availability: {
+    day_of_week: Day
+    is_available: boolean
+    max_duration_minutes: number | null
+  }[]
+}
+
+// NEW: equipment choices. Replace these with the names used in your exercises
+// table so they match Exercise.equipment_required, for example:
+//   SELECT DISTINCT unnest(equipment_required) FROM exercises ORDER BY 1;
+const equipmentOptions = [
+  'Medicine Ball',
+  'Exercise Ball',
+  'Barbell',
+  'Dumbbell',
+  'Bench',
+  'Cable',
+  'E-z Curl Bar',
+  'Machine',
+  'Kettlebells',
+  'Resistance Band',
+  'Pull-up Bar',
+  'Foam Roll',
+  'Bands',
+  'Body Only',
+  'Other',
+]
+
+
 function Profile({ setPage }: Props) {
   const [availability, setAvailability] = useState<
   Record<Day, DayAvailability>
@@ -35,6 +74,43 @@ function Profile({ setPage }: Props) {
     Saturday: { available: false, minutes: 45 },
     Sunday: { available: false, minutes: 30 },
   })
+
+  // The saved profile, once it has loaded
+  const [profile, setProfile] = useState<LoadedProfile['profile'] | null>(null)
+
+  // Load the current user's profile and availability on first render
+  useEffect(() => {
+    const token = localStorage.getItem('token')
+
+    fetch(`${API_URL}/profiles/profile`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((response) => {
+        if (response.status === 404) return null // no profile yet: keep the defaults
+        if (!response.ok) {
+          throw new Error(`Failed to load profile (${response.status})`)
+        }
+        return response.json() as Promise<LoadedProfile>
+      })
+      .then((data) => {
+        if (!data) return
+
+        setProfile(data.profile)
+        setAvailability((previous) => {
+          const next = { ...previous }
+          data.availability.forEach((row) => {
+            next[row.day_of_week] = {
+              available: row.is_available,
+              minutes:
+                row.max_duration_minutes ?? previous[row.day_of_week].minutes,
+            }
+          })
+          return next
+        })
+      })
+      .catch((error) => console.error(error))
+  }, [])
+
   const updateDay = (
     day:Day,
     changes: Partial<DayAvailability>
@@ -55,6 +131,13 @@ function Profile({ setPage }: Props) {
     (total, day) => total + availability[day].minutes,
     0
   )
+
+  // NEW: the standard choices, plus anything already saved that isn't in the
+  // list, so stored equipment never silently disappears from the form
+  const equipmentChoices = Array.from(
+    new Set([...equipmentOptions, ...(profile?.available_equipment ?? [])])
+  )
+
 return (
     <>
       <PageHeader
@@ -66,48 +149,34 @@ return (
         <div className="panel form-panel">
           <h2>Personal information</h2>
 
-          <div className="form-grid">
-            <label>
-              Age
-              <input type="number" defaultValue="26" min="1" />
-            </label>
-
-            <label>
-              Weight (lb)
-              <input type="number" defaultValue="154" min="1" />
-            </label>
-
+          {/* The key remounts these inputs once the profile loads, so their defaultValue applies */}
+          <div className="form-grid" key={profile ? 'loaded' : 'empty'}>
             <label>
               Primary goal
-              <select defaultValue="Build muscle">
-                <option>Build muscle</option>
-                <option>Strength</option>
-                <option>Fat loss</option>
-                <option>Endurance</option>
+              <select defaultValue={profile?.goal ?? 'hypertrophy'}>
+                <option value="strength">Strength</option>
+                <option value="hypertrophy">Hypertrophy</option>
+                <option value="muscular_endurance">Muscular Endurance</option>
+                <option value="power">Power</option>
+                <option value="general_fitness">General Fitness</option>
               </select>
             </label>
 
             <label>
               Experience level
-              <select defaultValue="Intermediate">
-                <option>Beginner</option>
-                <option>Intermediate</option>
-                <option>Advanced</option>
-              </select>
-            </label>
-
-            <label>
-              Activity level
-              <select defaultValue="Moderately active">
-                <option>Lightly active</option>
-                <option>Moderately active</option>
-                <option>Very active</option>
+              <select defaultValue={profile?.experience_level ?? 'intermediate'}>
+                <option value="beginner">Beginner</option>
+                <option value="intermediate">Intermediate</option>
+                <option value="advanced">Advanced</option>
               </select>
             </label>
 
             <label>
               Limitations / injuries
-              <input placeholder="None" />
+              <input
+                placeholder="None"
+                defaultValue={profile?.limitations.join(', ') ?? ''}
+              />
             </label>
           </div>
         </div>
@@ -115,25 +184,26 @@ return (
         <div className="panel form-panel">
           <h2>Training preferences</h2>
 
-          <div className="form-grid one-column">
-            <label>
-              Available equipment
-              <select defaultValue="Full gym">
-                <option>Full gym</option>
-                <option>Dumbbells only</option>
-                <option>Bodyweight</option>
-                <option>Travel / limited</option>
-              </select>
-            </label>
+          <div className="form-grid one-column" key={profile ? 'loaded' : 'empty'}>
+            {/* CHANGED: the backend stores a list of equipment, so this is now
+                a set of checkboxes instead of a single dropdown */}
+            <div role="group" aria-labelledby="equipment-label">
+              <span id="equipment-label">Available equipment</span>
 
-            <label>
-              Preferred training style
-              <select defaultValue="Hypertrophy / strength">
-                <option>Hypertrophy / strength</option>
-                <option>General fitness</option>
-                <option>Endurance</option>
-              </select>
-            </label>
+              <div className="availability-list">
+                {equipmentChoices.map((item) => (
+                  <label className="availability-day" key={item}>
+                    <input
+                      type="checkbox"
+                      defaultChecked={
+                        profile?.available_equipment.includes(item) ?? false
+                      }
+                    />
+                    <span>{item}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
           </div>
 
           <h3>Weekly workout availability</h3>
@@ -200,7 +270,7 @@ return (
           className="gold-button"
           onClick={() => setPage('plan')}
         >
-          Generate My Plan
+          Save Profile
         </button>
       </div>
     </>

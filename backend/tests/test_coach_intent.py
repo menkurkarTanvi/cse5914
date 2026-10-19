@@ -8,8 +8,9 @@ conftest.py needs TEST_DATABASE_URL, so without it run:
 
 import asyncio
 
-from agent.coach_graph import build_coach_graph
-from agent.nodes import coach, coach_intent
+from backend.agent_chatbot.coach_graph import build_coach_graph
+from backend.agent_chatbot.nodes import coach
+from backend.agent_chatbot.nodes import coach_intent
 from coach_fakes import USER_ID, FakeLLM, fake_context, planned, run, workout
 
 

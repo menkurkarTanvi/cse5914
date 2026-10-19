@@ -6,8 +6,8 @@ conftest.py needs TEST_DATABASE_URL, so without it run:
     pytest backend/tests/test_coach_*.py --noconftest
 """
 
-from agent import coach_rules
-from agent.nodes import coach_swap
+from backend.agent_chatbot import coach_rules
+from backend.agent_chatbot.nodes import coach_swap
 from coach_fakes import PROFILE, make_exercise, workout
 
 

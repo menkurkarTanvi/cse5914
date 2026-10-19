@@ -51,7 +51,7 @@ class Workout_Service:
                 WorkoutPlan.scheduled_date < today,
             )
             .order_by(WorkoutPlan.scheduled_date)
-            .options(
+            .options( 
                 selectinload(WorkoutPlan.program),
                     selectinload(WorkoutPlan.exercises).options(
                         selectinload(WorkoutPlanExercise.exercise),

@@ -140,7 +140,7 @@ def has_reply(state: CoachState) -> str:
 # ============================================================
 
 async def answer_exercise_question(state: CoachState, llm) -> dict:
-    from agent.coach_llm import build_answer_messages
+    from backend.agent_chatbot.coach_llm import build_answer_messages
 
     name = state["intent"]["exercise_name"]
     planned = find_workout_exercise(name, state.get("current_workout_exercises") or [])
@@ -151,7 +151,7 @@ async def answer_exercise_question(state: CoachState, llm) -> dict:
 
 
 async def general_reply(state: CoachState, llm) -> dict:
-    from agent.coach_llm import build_answer_messages
+    from backend.agent_chatbot.coach_llm import build_answer_messages
 
     response = await llm.ainvoke(build_answer_messages(state, None, None))
     return {"reply": _text(response)}
