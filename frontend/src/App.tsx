@@ -32,7 +32,7 @@ function App() {
 
   const loggedIn = token !== null
 
-  const [exercises, setExercises] =
+  const [exercises] =
     useState<Exercise[]>(initialExercises)
 
   const [message, setMessage] =
@@ -48,31 +48,11 @@ function App() {
     setToken(token)
     setPage('dashboard')
   }
-
+ 
   function handleLogout() {
     localStorage.removeItem('token')
     setToken(null)
     setPage('login')
-  }
-
-  function swapExercise(
-    index: number,
-    replacement: {
-      id: string
-      name: string
-    },
-  ) {
-    setExercises((current) =>
-      current.map((exercise, i) =>
-        i === index
-          ? {
-              ...exercise,
-              id: replacement.id,
-              name: replacement.name,
-            }
-          : exercise,
-      ),
-    )
   }
 
   function sendMessage() {
@@ -123,11 +103,7 @@ function App() {
         )}
 
         {page === 'plan' && (
-          <WorkoutPlan
-            exercises={exercises}
-            swapExercise={swapExercise}
-            setPage={setPage}
-          />
+          <WorkoutPlan setPage={setPage} />
         )}
 
         {page === 'coach' && (
