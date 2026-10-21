@@ -1,24 +1,22 @@
-import asyncio
+# enrichment/enrich_exercise.py
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from models.exercise import Exercise
 
-from .gemini_client import enrich_with_gemini
+from .openai_client import enrich_with_openai
 from .searchable_text import build_searchable_text
-from .embeddings import generate_embedding
-
-
-EMBEDDING_MODEL = "gemini-embedding-001"
+from .embeddings import generate_embedding, EMBEDDING_MODEL
 
 
 async def enrich_exercise(
     db: AsyncSession,
     exercise: Exercise,
 ) -> Exercise:
+    """Enrich an exercise and generate its embedding."""
 
-    # 1. Gemini classification — sync network call, offload to a thread
-    enrichment = await asyncio.to_thread(enrich_with_gemini, exercise)
+    # 1. Generate structured exercise metadata.
+    enrichment = await enrich_with_openai(exercise)
 
     exercise.exercise_family = enrichment.exercise_family
     exercise.movement_pattern = enrichment.movement_pattern
@@ -33,15 +31,18 @@ async def enrich_exercise(
     exercise.stability_requirement = enrichment.stability_requirement
     exercise.fatigue_cost = enrichment.fatigue_cost
 
-    # 2. Build searchable text
+    # 2. Create searchable text after updating metadata.
     exercise.searchable_text = build_searchable_text(exercise)
 
-    # 3. Generate embedding — also sync, also offload
-    exercise.embedding = await asyncio.to_thread(
-        generate_embedding, exercise.searchable_text
+    # 3. Generate embedding from the searchable text.
+    exercise.embedding = await generate_embedding(
+        exercise.searchable_text
     )
+
+    # 4. Record which model generated the vector.
     exercise.embedding_model = EMBEDDING_MODEL
 
     db.add(exercise)
 
+    # The caller handles commit/rollback.
     return exercise

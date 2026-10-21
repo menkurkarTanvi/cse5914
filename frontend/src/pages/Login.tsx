@@ -40,7 +40,7 @@ function Login({ setPage, onLogin }: Props) {
         return
       }
 
-      onLogin(data.token)
+      onLogin(data.access_token)
     } catch (error) {
       console.error(error)
       setError(

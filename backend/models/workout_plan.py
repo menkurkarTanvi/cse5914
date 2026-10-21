@@ -27,9 +27,12 @@ class WorkoutPlan(Base):
             "workout_programs.program_id",
             ondelete="CASCADE"
         ),
-        nullable=False
+        nullable=True
     )
-
+    #Push, Pull, etc. 
+    description: Mapped[str] = mapped_column(
+        nullable=True
+    )
     # Week 1–4 of the program
     week_number: Mapped[int] = mapped_column(
         nullable=False
@@ -46,6 +49,7 @@ class WorkoutPlan(Base):
         nullable=False
     )
 
+    #status must be either scheduled/completed/incompleted
     status: Mapped[str] = mapped_column(
         String,
         nullable=False,

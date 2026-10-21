@@ -20,16 +20,19 @@ import type {
 } from './types'
 
 function App() {
-  const [page, setPage] =
-    useState<Page>('login')
-
   const [token, setToken] = useState<string | null>(
     localStorage.getItem('token'),
   )
 
+  const [page, setPage] = useState<Page>(
+    localStorage.getItem('token')
+      ? 'dashboard'
+      : 'login',
+  )
+
   const loggedIn = token !== null
 
-  const [exercises, setExercises] =
+  const [exercises] =
     useState<Exercise[]>(initialExercises)
 
   const [message, setMessage] =
@@ -45,31 +48,11 @@ function App() {
     setToken(token)
     setPage('dashboard')
   }
-
+ 
   function handleLogout() {
     localStorage.removeItem('token')
     setToken(null)
     setPage('login')
-  }
-
-  function swapExercise(index: number) {
-    const replacements = [
-      'Dumbbell Bench Press',
-      'Machine Chest Press',
-      'Arnold Press',
-      'Cable Lateral Raise',
-    ]
-
-    setExercises((current) =>
-      current.map((exercise, i) =>
-        i === index
-          ? {
-              ...exercise,
-              name: replacements[index],
-            }
-          : exercise,
-      ),
-    )
   }
 
   function sendMessage() {
@@ -120,11 +103,7 @@ function App() {
         )}
 
         {page === 'plan' && (
-          <WorkoutPlan
-            exercises={exercises}
-            swapExercise={swapExercise}
-            setPage={setPage}
-          />
+          <WorkoutPlan setPage={setPage} />
         )}
 
         {page === 'coach' && (

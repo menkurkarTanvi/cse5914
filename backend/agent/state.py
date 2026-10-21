@@ -1,12 +1,10 @@
 # agent/state.py
 
-# agent/state.py
-
 from __future__ import annotations
 
 import uuid
 from datetime import date
-from typing import Literal, TypedDict
+from typing import Literal, NotRequired, TypedDict
 
 
 # ============================================================
@@ -96,6 +94,7 @@ class ProgramState(TypedDict):
 class WorkoutState(TypedDict):
     workout_id: uuid.UUID
     program_id: uuid.UUID
+    description: str
     week_number: int
     day_of_week: DayOfWeek
     scheduled_date: date
@@ -105,10 +104,12 @@ class WorkoutState(TypedDict):
 # ============================================================
 # Exercise information
 # ============================================================
-
+ 
 class ExerciseState(TypedDict):
     exercise_id: str
     name: str
+    primary_muscles: list[str]
+    secondary_muscles: list[str]
     exercise_family: str | None
     movement_pattern: str | None
     training_role: list[str] | None
@@ -125,9 +126,44 @@ class ExerciseState(TypedDict):
     difficulty_level: str
 
 
+# Baseline set/rep guidance for one exercise and goal. Comes from the
+# exercise_prescriptions table, or a mechanics-based fallback when the
+# exercise has no row yet.
+class PrescriptionState(TypedDict):
+    sets_min: int
+    sets_max: int
+    reps_min: int
+    reps_max: int
+    rest_seconds: int
+    target_rpe_min: float
+    target_rpe_max: float
+
+
 class ExerciseCandidateState(TypedDict):
     exercise: ExerciseState
     similarity_score: float
+    # Filled in by retrieve_candidate_exercises for new program generation.
+    prescription: NotRequired[PrescriptionState]
+    is_compound: NotRequired[bool]
+    category: NotRequired[str]
+
+
+# One exercise in the upcoming workout: its prescription (a
+# WorkoutPlanExercise row) plus the exercise details.
+class PlannedExerciseState(TypedDict):
+    workout_plan_exercise_id: uuid.UUID
+    exercise_order: int
+    sets_planned: int
+    reps_min: int
+    reps_max: int
+    target_rpe_min: float | None
+    target_rpe_max: float | None
+    rest_seconds: int
+    planned_weight: float | None
+    weight_unit: str
+    progression_method: str | None
+    notes: str | None
+    exercise: ExerciseState
 
 
 # ============================================================
@@ -135,6 +171,8 @@ class ExerciseCandidateState(TypedDict):
 # ============================================================
 
 class PerformanceState(TypedDict):
+    workout_id: uuid.UUID
+    scheduled_date: date
     workout_plan_exercise_id: uuid.UUID
     exercise_id: str
 
@@ -145,17 +183,13 @@ class PerformanceState(TypedDict):
     target_rpe_min: float | None
     target_rpe_max: float | None
     planned_weight: float | None
+    weight_unit: str
 
-    # Actual performance
+    # Actual performance (completed sets only, ordered by set_number)
     actual_reps: list[int]
     actual_weights: list[float | None]
     actual_rpes: list[float | None]
 
-
-class WorkoutHistoryState(TypedDict):
-    workout_id: uuid.UUID
-    scheduled_date: date
-    status: WorkoutStatus
 
 
 # ============================================================
@@ -261,11 +295,11 @@ class WorkoutAgentState(TypedDict, total=False):
     # --------------------------------------------------------
     active_program: ProgramState | None
     current_workout: WorkoutState | None
+    current_workout_exercises: list[PlannedExerciseState]
 
     # --------------------------------------------------------
     # Training history
     # --------------------------------------------------------
-    recent_workouts: list[WorkoutHistoryState]
     recent_performance: list[PerformanceState]
 
     # --------------------------------------------------------
