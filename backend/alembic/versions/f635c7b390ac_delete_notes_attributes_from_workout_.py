@@ -25,6 +25,16 @@ def upgrade() -> None:
     op.alter_column('workout_plans', 'program_id',
                existing_type=sa.UUID(),
                nullable=True)
+    # Existing workout plans may predate the required description field.
+    # Backfill those rows before adding the NOT NULL constraint so upgrades
+    # work for populated databases as well as fresh installations.
+    op.execute(
+        sa.text(
+            "UPDATE workout_plans "
+            "SET description = 'Workout' "
+            "WHERE description IS NULL"
+        )
+    )
     op.alter_column('workout_plans', 'description',
                existing_type=sa.VARCHAR(),
                nullable=False)
