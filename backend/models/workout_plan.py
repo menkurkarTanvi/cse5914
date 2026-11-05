@@ -77,6 +77,8 @@ class WorkoutPlan(Base):
     )
 
     __table_args__ = (
+        CheckConstraint("status IN ('scheduled','in_progress','completed','skipped')", name="ck_workout_status"),
+        CheckConstraint("lower(day_of_week) IN ('monday','tuesday','wednesday','thursday','friday','saturday','sunday')", name="ck_workout_day"),
         UniqueConstraint(
             "program_id",
             "week_number",

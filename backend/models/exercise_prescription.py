@@ -67,6 +67,7 @@ class ExercisePrescription(Base):
     )
 
     __table_args__ = (
+        CheckConstraint("goal IN ('strength','hypertrophy','muscular_endurance','power','general_fitness')", name="ck_prescription_goal"),
         UniqueConstraint(
             "exercise_id",
             "goal",

@@ -509,7 +509,7 @@ async def get_workout_plan(
 
     plans = (
         await workout_service
-        .get_last_week_workout_plans(
+        .get_upcoming_workout_plans(
             user_uuid,
             date.today(),
         )
