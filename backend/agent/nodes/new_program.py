@@ -338,6 +338,13 @@ def build_program(
         MAX_DAYS_BY_EXPERIENCE.get(experience, 4),
     )
     split = SPLITS_BY_DAYS[len(training_days)]
+    descriptions = {
+        "full_body": "Full Body", "upper": "Upper Body", "lower": "Lower Body",
+        "push": "Push", "pull": "Pull", "legs": "Legs",
+    }
+    description_by_day = {
+        day: descriptions[day_type] for day, day_type in zip(training_days, split)
+    }
 
     weekly_sessions: dict[str, list[dict]] = {}
     variant_counts: dict[str, int] = {}
@@ -362,6 +369,7 @@ def build_program(
                 {
                     "week_number": week,
                     "day_of_week": day,
+                    "description": description_by_day[day],
                     "scheduled_date": _date_in_week(week_start, day),
                     "exercises": [
                         _apply_week(exercise, week)
@@ -707,6 +715,7 @@ async def save_program(state: WorkoutAgentState) -> dict:
                     # lowercases when it reads it back.
                     day_of_week=workout["day_of_week"].capitalize(),
                     scheduled_date=workout["scheduled_date"],
+                    description=workout["description"],
                     status="scheduled",
                     exercises=[
                         WorkoutPlanExercise(**exercise)
@@ -730,6 +739,7 @@ async def save_program(state: WorkoutAgentState) -> dict:
                 "program_id": first.program_id,
                 "week_number": first.week_number,
                 "day_of_week": first.day_of_week.lower(),
+                "description": first.description,
                 "scheduled_date": first.scheduled_date,
                 "status": first.status,
             }

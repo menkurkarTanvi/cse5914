@@ -148,6 +148,14 @@ def test_equipment_is_a_hard_filter():
     assert "bench" not in ids and "row" not in ids
 
 
+def test_frontend_resistance_band_option_allows_band_exercises():
+    exercise = make_exercise("band-row", "Band Row", ["Middle Back"], ["Bands"])
+    point = starting_point(
+        available_equipment=sorted(npg.normalize_equipment(["Resistance Band"]))
+    )
+    assert npg.is_exercise_allowed(exercise, point)
+
+
 def test_knee_limitation_excludes_knee_exercises():
     point = starting_point(limitations=["tweaked my knee"])
     ids = {c["exercise"]["exercise_id"] for c in npg.build_candidates(EXERCISES, {}, point)}

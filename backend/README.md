@@ -157,6 +157,15 @@ Then register an account in the app. Users, profiles and workout programs are cr
 
 Alembic manages the database schema. Run these from `backend` with the virtual environment active. They act on the database in `DATABASE_URL`.
 
+Revision `91d6a3b82f40` moves the profile primary key to `profiles.id` while
+retaining unique `user_id` values, and adds the validation checks declared in
+the models. It preserves existing IDs and maps the legacy workout status
+`incompleted` to `skipped`. If historical data violates a new check, the upgrade
+fails atomically with the constraint name, table, and invalid row count. Review
+and correct those records, then rerun `alembic upgrade head`; do not reset the
+database to bypass validation. Its downgrade restores the previous key and
+removes only the checks introduced by this revision.
+
 **Everyone:**
 
 ```powershell

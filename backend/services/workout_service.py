@@ -15,17 +15,15 @@ class Workout_Service:
         self.db = db
 
 
-    async def get_last_week_workout_plans(
+    async def get_upcoming_workout_plans(
         self,
         user_id: uuid.UUID,
         today: date | None = None,
     ) -> list[WorkoutPlan]:
-        """Return the user's workout plans from the last 7 days, oldest first.
+        """Return plans from today through seven days ahead, oldest first.
 
-        The window starts 7 days ago and ends yesterday, so today's workout is
-        not included. It always contains last week's workout for today's
-        weekday. Workouts from every one of the user's programs are considered,
-        except draft programs that were never started.
+        Both endpoints are included, preserving the My Plan page's existing
+        upcoming-workout window. Draft programs are excluded.
 
         Each plan has its exercises loaded (sorted by ``exercise_order``), and
         each exercise has its ``exercise`` details and the logged ``sets``
@@ -37,7 +35,7 @@ class Workout_Service:
         if isinstance(user_id, str):
             user_id = uuid.UUID(user_id)
         today = today or date.today()
-        window_start = today + timedelta(days=7)
+        window_end = today + timedelta(days=7)
 
         result = await self.db.execute(
             select(WorkoutPlan)
@@ -47,7 +45,8 @@ class Workout_Service:
             )
             .where(
                 WorkoutProgram.user_id == user_id,
-                WorkoutPlan.scheduled_date <= window_start,
+                WorkoutProgram.status != "draft",
+                WorkoutPlan.scheduled_date <= window_end,
                 WorkoutPlan.scheduled_date >= today,
             )
             .order_by(WorkoutPlan.scheduled_date)

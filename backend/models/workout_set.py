@@ -59,6 +59,7 @@ class WorkoutSet(Base):
     )
 
     __table_args__ = (
+        CheckConstraint("weight_unit IN ('lb','kg')", name="ck_set_weight_unit"),
         CheckConstraint(
             "set_number > 0",
             name="ck_set_number"

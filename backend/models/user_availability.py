@@ -2,7 +2,7 @@ from __future__ import annotations
 from datetime import date
 from typing import TYPE_CHECKING
 # models.py
-from sqlalchemy import Column, String, Text, UniqueConstraint, false, ARRAY, ForeignKey
+from sqlalchemy import Column, String, Text, UniqueConstraint, false, ARRAY, ForeignKey, CheckConstraint
 from sqlalchemy.dialects.postgresql import TEXT, UUID, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from pgvector.sqlalchemy import Vector
@@ -43,6 +43,8 @@ class UserAvailability(Base):
     )
 
     __table_args__ = (
+        CheckConstraint("lower(day_of_week) IN ('monday','tuesday','wednesday','thursday','friday','saturday','sunday')", name="ck_availability_day"),
+        CheckConstraint("max_duration_minutes IS NULL OR max_duration_minutes BETWEEN 1 AND 300", name="ck_availability_duration"),
         UniqueConstraint(
             "user_id",
             "day_of_week",
