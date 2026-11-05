@@ -16,6 +16,7 @@ Conventions (matching the existing code):
 | 1 | Exercise swap | `GET .../alternatives`, `POST .../swap` | New |
 | 2 | Workout completion, logging, feedback | `POST /workouts/{workout_id}/complete`, `POST /workouts/{workout_id}/skip` | New |
 | 3 | Profile availability | `POST /profiles/createProfile`, `PUT /profiles/availability` | Create schema exists; update route is new |
+| 4 | AI coach chat | `POST /coach/chat` | Implemented (backend); frontend not connected yet |
 
 ---
 
@@ -266,6 +267,119 @@ Notes:
   - `max_duration_minutes` is 1–300.
 - A profile or availability change should set `profile_changed`, so the agent
   re-checks the current plan (the compatibility branch in `agent/agent.txt`).
+
+---
+
+## 4. AI coach chat
+
+`POST /coach/chat`. Sends one message to the AI coach and returns its reply.
+The coach can answer questions about the user's plan and propose changes to
+today's workout: swap an exercise, shorten the workout, or make it easier or
+harder. It only changes the plan after the user confirms.
+
+The server keeps no chat state. The client holds the conversation and sends it
+with every message.
+
+Request:
+
+```json
+{
+  "message": "Can I swap bench press? My shoulder hurts.",
+  "history": [
+    { "role": "user", "content": "What's my workout today?" },
+    { "role": "assistant", "content": "Today is Push: bench press, ..." }
+  ],
+  "pending_action": null
+}
+```
+
+- `message`: 1–1000 characters after trimming whitespace.
+- `history`: earlier turns, oldest first. At most 50 turns, each with `role`
+  `"user"` or `"assistant"` and `content` of 1–4000 characters. Optional;
+  defaults to `[]`.
+- `pending_action`: the `pending_action` from the previous response, sent back
+  unchanged. `null` (or omitted) when the previous response had none.
+
+Response:
+
+```json
+{
+  "reply": "Here are some swaps for Barbell Bench Press that are easier on your shoulder:\n1. ...",
+  "intent": "swap_exercise",
+  "needs_follow_up": true,
+  "options": [
+    {
+      "number": 1,
+      "exercise_id": "dumbbell-floor-press",
+      "name": "Dumbbell Floor Press",
+      "equipment_required": ["Dumbbell"],
+      "reason": "Same movement (horizontal push) with less shoulder strain."
+    }
+  ],
+  "pending_action": "<opaque signed string>",
+  "plan_changed": false
+}
+```
+
+- `reply`: the coach's message to show. It can contain newlines and Markdown
+  written by the LLM (`**bold**`, numbered lists), so render it as Markdown or
+  strip the formatting.
+- `intent`: what the coach understood. One of `exercise_question`,
+  `swap_exercise`, `shorten_workout`, `adjust_difficulty`, `confirm`,
+  `decline`, `other`. Useful for debugging; the UI doesn't need it.
+- `needs_follow_up`: `true` when the coach is waiting for the user's answer.
+  See "Follow-ups" below.
+- `options`: numbered swap choices, for rendering as buttons. Empty unless the
+  coach is offering swaps.
+- `pending_action`: opaque. Store it and send it back with the next message.
+  `null` when nothing is pending.
+- `plan_changed`: `true` when this message changed today's workout. The client
+  should refetch the plan (`GET /workouts/workoutPlan`).
+
+### Follow-ups
+
+When `needs_follow_up` is `true`, the coach is waiting for one of three things.
+The user always answers with a normal message, so a plain text box handles all
+of them:
+
+| The coach is... | `options` | The user replies with... |
+|---|---|---|
+| Offering swaps | non-empty | the option's number or name, e.g. `"2"` |
+| Proposing a change (shorten, easier, harder) | empty | `"yes"` or `"no"` |
+| Asking for missing details (which exercise? how many minutes?) | empty | the answer, e.g. `"30 minutes"` |
+
+The response doesn't say whether an empty-`options` follow-up is a yes/no
+proposal or an open question. Yes/No buttons are therefore safe only next to
+the text box, not instead of it.
+
+Picking a swap option applies it straight away (`plan_changed: true`). A
+proposed change is applied when the user confirms it. If the user says
+something unrelated instead, the pending action is dropped.
+
+### Rules for the client
+
+- Append both the user's message and the coach's `reply` to `history` after
+  every successful response. Send at most the last 50 turns.
+- Never edit `pending_action`. It is signed for this user and expires after
+  30 minutes (`PENDING_ACTION_MINUTES` in `agent_chatbot/coach_rules.py`). An
+  expired or tampered one isn't an error; the server ignores it. If the user
+  then answers yes or no, the coach replies that the proposal expired instead
+  of applying anything.
+- Send one message at a time. Wait for the response before sending the next,
+  because each request needs the previous `pending_action`.
+
+### Errors
+
+| Status | When | What the client should do |
+|---|---|---|
+| `401` | Missing or expired login token. Tokens last 15 minutes. | Ask the user to log in again. |
+| `422` | `message` is empty or too long, or `history` breaks the limits above. | Validate before sending. |
+| `503` | The LLM is unavailable: rate limited, or `GOOGLE_API_KEY` is not set. | Show `detail` to the user; they can retry. |
+
+Error bodies are FastAPI's `{ "detail": ... }`. For `503`, `detail` is a
+message written for the user. For `401` it is a generic string ("Invalid
+authentication credentials"), so show your own "please log in again" message.
+For `422` it is a list of validation errors, not a string.
 
 ---
 
