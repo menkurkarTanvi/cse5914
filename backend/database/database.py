@@ -8,9 +8,13 @@ load_dotenv()
 #Database URL for PostgreSQL with asyncpg driver
 # Falls back to the local Docker database if DATABASE_URL isn't set
 DATABASE_URL = os.getenv("DATABASE_URL")
+if not DATABASE_URL:
+    raise RuntimeError("DATABASE_URL environment variable is not set")
+
+SQL_ECHO = os.getenv("SQL_ECHO", "false").lower() in {"1", "true", "yes"}
 
 # Create the async engine and sessionmaker
-engine = create_async_engine(DATABASE_URL, echo=True)
+engine = create_async_engine(DATABASE_URL, echo=SQL_ECHO, pool_pre_ping=True)
 
 # Base class that all your models inherit from
 Base = declarative_base()

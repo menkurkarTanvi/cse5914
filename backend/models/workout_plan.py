@@ -49,7 +49,8 @@ class WorkoutPlan(Base):
         nullable=False
     )
 
-    #status must be either scheduled/completed/incompleted
+    # Status values currently used by the application are scheduled,
+    # in_progress, completed, and skipped.
     status: Mapped[str] = mapped_column(
         String,
         nullable=False,
