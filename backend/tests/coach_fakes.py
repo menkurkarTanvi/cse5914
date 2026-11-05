@@ -7,8 +7,8 @@ from types import SimpleNamespace
 
 from langchain_core.messages import AIMessage
 
-from backend.agent_chatbot.coach_graph import build_coach_graph
-from backend.agent_chatbot.nodes.coach import CoachIntent
+from agent_chatbot.coach_graph import build_coach_graph
+from agent_chatbot.nodes.coach import CoachIntent
 
 
 USER_ID = uuid.uuid4()

@@ -21,7 +21,7 @@ async def chat(payload: CoachChatRequest, user_id: CurrentUserId):
     The client keeps the conversation: send the earlier turns in ``history``
     and the previous response's ``pending_action`` back unchanged.
     """
-    from backend.agent_chatbot.coach_graph import get_coach_graph
+    from agent_chatbot.coach_graph import get_coach_graph
 
     try:
         graph = get_coach_graph()
