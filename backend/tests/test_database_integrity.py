@@ -1,4 +1,5 @@
 """Exercise the migrated PostgreSQL schema, not just Pydantic validation."""
+import re
 import uuid
 from datetime import date, timedelta
 
@@ -238,3 +239,68 @@ async def test_generate_save_and_retrieve_four_week_program(db_session, client, 
     assert response.status_code == 200
     returned = [w for w in response.json()["workouts"] if w["workout_id"] in {str(w.workout_id) for w in saved}]
     assert returned and all(w["description"] == "Full Body" and w["exercises"] for w in returned)
+
+
+async def test_profile_update_preserves_omitted_exercise_preferences(db_session, client, records):
+    from core.auth import create_access_token
+
+    user, profile, *_ = records
+    profile.preferred_exercises = ["bench press"]
+    profile.disliked_exercises = ["burpees"]
+    await db_session.flush()
+    token = await create_access_token({"sub": str(user.id)})
+    response = await client.post("/profiles/createProfile", json={
+        "profile": {
+            "goal": "strength", "experience_level": "beginner",
+            "available_equipment": ["Resistance Band"], "limitations": [],
+        },
+        "availability": [{"day_of_week": "Monday", "max_duration_minutes": 45}],
+    }, headers={"Authorization": f"Bearer {token}"})
+    assert response.status_code == 200
+    assert response.json()["profile"]["preferred_exercises"] == ["bench press"]
+    assert response.json()["profile"]["disliked_exercises"] == ["burpees"]
+
+
+async def test_alternatives_do_not_select_large_exercise_fields(db_session, client, records):
+    from core.auth import create_access_token
+    from sqlalchemy import event
+
+    user, _, _, workout, _ = records
+    planned_id = await db_session.scalar(
+        select(WorkoutPlanExercise.id).where(WorkoutPlanExercise.workout_id == workout.workout_id)
+    )
+    candidate_id = str(uuid.uuid4())
+    db_session.add(Exercise(
+        exercise_id=candidate_id, name="Dumbbell Squat", type="reps",
+        difficulty_level="beginner", force_type="push", mechanics="compound",
+        category="strength", instructions="Squat.", primary_muscles=["quadriceps"],
+        secondary_muscles=[], tertiary_muscles=[], equipment_required=["dumbbell"],
+        embedding=[0.1] * 1536, searchable_text="Large search metadata",
+    ))
+    await db_session.flush()
+    token = await create_access_token({"sub": str(user.id)})
+    # Force loading from PostgreSQL rather than reusing the fixture objects.
+    db_session.expire_all()
+    connection = await db_session.connection()
+    statements = []
+
+    def capture(conn, cursor, statement, parameters, context, executemany):
+        if statement.lstrip().upper().startswith("SELECT"):
+            statements.append(statement)
+
+    event.listen(connection.sync_connection, "before_cursor_execute", capture)
+    try:
+        response = await client.get(
+            f"/workouts/exercises/{planned_id}/alternatives",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+    finally:
+        event.remove(connection.sync_connection, "before_cursor_execute", capture)
+
+    assert response.status_code == 200
+    assert response.json()["alternatives"][0]["exercise_id"] == candidate_id
+    exercise_queries = [sql for sql in statements if "FROM exercises" in sql]
+    assert len(exercise_queries) == 2  # current exercise and alternatives
+    for sql in exercise_queries:
+        for column in ("embedding", "searchable_text", "instructions"):
+            assert not re.search(rf"\bexercises\.{column}\b", sql)

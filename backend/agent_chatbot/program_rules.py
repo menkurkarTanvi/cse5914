@@ -84,6 +84,7 @@ EQUIPMENT_ALIASES: dict[str, str | set[str]] = {
     "barbells": "barbell",
     "kettlebell": "kettlebells",
     "band": "bands",
+    "resistance band": "bands",
     "resistance bands": "bands",
     "cables": "cable",
     "machines": "machine",

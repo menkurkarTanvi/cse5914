@@ -318,12 +318,6 @@ function Profile({
         available_equipment:
           selectedEquipment,
 
-        preferred_exercises:
-          [],
-
-        disliked_exercises:
-          [],
-
         limitations:
           limitationList,
       },

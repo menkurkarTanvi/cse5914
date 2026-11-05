@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field, model_validator
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import defer, selectinload
 
 from database.database import get_db
 from dependencies import CurrentUserId
@@ -89,7 +89,13 @@ async def _get_owned_workout_exercise(
             WorkoutPlanExercise.id == workout_plan_exercise_id,
             WorkoutProgram.user_id == user_uuid,
         )
-        .options(selectinload(WorkoutPlanExercise.exercise))
+        .options(
+            selectinload(WorkoutPlanExercise.exercise).options(
+                defer(Exercise.embedding),
+                defer(Exercise.searchable_text),
+                defer(Exercise.instructions),
+            )
+        )
     )
 
     item = result.scalar_one_or_none()
@@ -238,6 +244,10 @@ async def exercise_alternatives(
         select(Exercise).where(
             Exercise.exercise_id
             != current.exercise_id
+        ).options(
+            defer(Exercise.embedding),
+            defer(Exercise.searchable_text),
+            defer(Exercise.instructions),
         )
     )
 
