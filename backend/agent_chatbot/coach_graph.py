@@ -65,6 +65,6 @@ def build_coach_graph(llm, load_context=coach.load_coach_context):
 
 @lru_cache(maxsize=1)
 def get_coach_graph():
-    from backend.agent_chatbot.coach_llm import get_coach_llm
+    from agent_chatbot.coach_llm import get_coach_llm
 
     return build_coach_graph(get_coach_llm())
