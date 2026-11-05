@@ -3,12 +3,12 @@ from __future__ import annotations
 
 import re
 
-from agent.coach_rules import FOLLOW_UP_FIELDS, NOT_MINUTES, WHOLE_WORKOUT
-from backend.agent_chatbot.nodes.coach import (
+from agent_chatbot.coach_rules import FOLLOW_UP_FIELDS, NOT_MINUTES, WHOLE_WORKOUT
+from agent_chatbot.nodes.coach import (
     MODIFY_INTENTS, CoachIntent, CoachState, find_workout_exercise,
     find_workout_exercise_in_text,
 )
-from backend.agent_chatbot.nodes.coach_changes import workout_minutes
+from agent_chatbot.nodes.coach_changes import workout_minutes
 
 # AI coach, step 2: what does the user want, is anything missing, and which
 # node answers. See agent/nodes/coach.py for the whole flow.
@@ -20,7 +20,7 @@ from backend.agent_chatbot.nodes.coach_changes import workout_minutes
 
 async def classify_message(state: CoachState, llm) -> dict:
     """Ask the LLM for intent and details, then decide on a follow-up."""
-    from backend.agent_chatbot.coach_llm import build_classifier_messages
+    from agent_chatbot.coach_llm import build_classifier_messages
 
     structured = llm.with_structured_output(CoachIntent)
     result = await structured.ainvoke(build_classifier_messages(state))
