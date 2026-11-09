@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8000'
+import { API_URL, authHeaders } from './client'
 
 // The server rejects more than 50 history turns (schemas/coach.py).
 const MAX_HISTORY_TURNS = 50
@@ -45,18 +45,6 @@ export class CoachError extends Error {
     super(message)
     this.name = 'CoachError'
     this.status = status
-  }
-}
-
-// Same as in workouts.ts. Could move to a shared api/client.ts.
-function authHeaders(): HeadersInit {
-  const token = localStorage.getItem('token')
-
-  return {
-    'Content-Type': 'application/json',
-    ...(token
-      ? { Authorization: `Bearer ${token}` }
-      : {}),
   }
 }
 

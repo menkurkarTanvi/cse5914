@@ -2,11 +2,20 @@ import PageHeader from '../components/PageHeader'
 import StatCard from '../components/StatCard'
 import type { Exercise, Page } from '../types'
 
+const COACH_SHORTCUTS = [
+  'I only have 30 minutes',
+  'Swap an exercise',
+  'I feel sore today',
+]
+
 function Dashboard({
   setPage,
+  openCoach,
   exercises,
 }: {
   setPage: (page: Page) => void
+  // Opens the AI Coach with this message typed in, ready to edit or send.
+  openCoach: (draft: string) => void
   exercises: Exercise[]
 }) {
   return (
@@ -93,32 +102,17 @@ function Dashboard({
             Ask AI Coach
           </button>
 
-          <button
-            className="quick-button"
-            onClick={() =>
-              setPage('coach')
-            }
-          >
-            I only have 30 minutes
-          </button>
-
-          <button
-            className="quick-button"
-            onClick={() =>
-              setPage('coach')
-            }
-          >
-            Swap an exercise
-          </button>
-
-          <button
-            className="quick-button"
-            onClick={() =>
-              setPage('coach')
-            }
-          >
-            I feel sore today
-          </button>
+          {COACH_SHORTCUTS.map((shortcut) => (
+            <button
+              key={shortcut}
+              className="quick-button"
+              onClick={() =>
+                openCoach(shortcut)
+              }
+            >
+              {shortcut}
+            </button>
+          ))}
         </div>
       </section>
     </>
