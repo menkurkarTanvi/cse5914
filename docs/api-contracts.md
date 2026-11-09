@@ -16,7 +16,7 @@ Conventions (matching the existing code):
 | 1 | Exercise swap | `GET .../alternatives`, `POST .../swap` | New |
 | 2 | Workout completion, logging, feedback | `POST /workouts/{workout_id}/complete`, `POST /workouts/{workout_id}/skip` | New |
 | 3 | Profile availability | `POST /profiles/createProfile`, `PUT /profiles/availability` | Create schema exists; update route is new |
-| 4 | AI coach chat | `POST /coach/chat` | Implemented (backend); frontend not connected yet |
+| 4 | AI coach chat | `POST /coach/chat` | Implemented; used by the AI Coach page |
 
 ---
 
@@ -352,14 +352,19 @@ The response doesn't say whether an empty-`options` follow-up is a yes/no
 proposal or an open question. Yes/No buttons are therefore safe only next to
 the text box, not instead of it.
 
-Picking a swap option applies it straight away (`plan_changed: true`). A
-proposed change is applied when the user confirms it. If the user says
-something unrelated instead, the pending action is dropped.
+Picking a swap option applies it straight away (`plan_changed: true`). If the
+pick doesn't match an option (e.g. `"7"` when there are 3), the coach asks
+"Which option do you want?" and returns the same options again. A proposed
+change is applied when the user confirms it. If the user says something
+unrelated instead, the pending action is dropped.
 
 ### Rules for the client
 
 - Append both the user's message and the coach's `reply` to `history` after
   every successful response. Send at most the last 50 turns.
+- Never send an empty turn. `reply` can be `""` if the LLM returns no text
+  (e.g. a blocked answer); store a placeholder instead, or every later request
+  fails with `422`.
 - Never edit `pending_action`. It is signed for this user and expires after
   30 minutes (`PENDING_ACTION_MINUTES` in `agent_chatbot/coach_rules.py`). An
   expired or tampered one isn't an error; the server ignores it. If the user
@@ -375,11 +380,13 @@ something unrelated instead, the pending action is dropped.
 | `401` | Missing or expired login token. Tokens last 15 minutes. | Ask the user to log in again. |
 | `422` | `message` is empty or too long, or `history` breaks the limits above. | Validate before sending. |
 | `503` | The LLM is unavailable: rate limited, or `GOOGLE_API_KEY` is not set. | Show `detail` to the user; they can retry. |
+| `500` | An unexpected server error. The body may not be JSON. | Show a generic "try again" message. |
 
 Error bodies are FastAPI's `{ "detail": ... }`. For `503`, `detail` is a
-message written for the user. For `401` it is a generic string ("Invalid
-authentication credentials"), so show your own "please log in again" message.
-For `422` it is a list of validation errors, not a string.
+message written for the user. For `401` it is a generic string: "Not
+authenticated" with no token, "Invalid authentication credentials" with a bad
+or expired one. Show your own "please log in again" message instead. For `422`
+it is a list of validation errors, not a string.
 
 ---
 

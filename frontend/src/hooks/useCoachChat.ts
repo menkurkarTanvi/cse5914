@@ -34,10 +34,23 @@ const EMPTY_CHAT: SavedChat = {
   previous: null,
 }
 
+// Shown when the coach sends back no text (e.g. Gemini blocked its answer).
+// The server rejects empty history turns, so a blank reply must never be kept.
+const EMPTY_REPLY = "Sorry, I couldn't answer that. Could you rephrase it?"
+
 function loadChat(): SavedChat {
   try {
-    const saved = sessionStorage.getItem(STORAGE_KEY)
-    return saved ? JSON.parse(saved) : EMPTY_CHAT
+    const saved = JSON.parse(sessionStorage.getItem(STORAGE_KEY) ?? 'null')
+    // Anything unexpected (an older format, a manual edit) starts a new chat
+    // instead of crashing the page.
+    if (
+      !Array.isArray(saved?.turns) ||
+      !Array.isArray(saved?.options) ||
+      !(typeof saved.pendingAction === 'string' || saved.pendingAction === null)
+    ) {
+      return EMPTY_CHAT
+    }
+    return saved
   } catch {
     return EMPTY_CHAT
   }
@@ -53,7 +66,10 @@ export function clearCoachChat() {
 
 export function useCoachChat({ onPlanChanged }: { onPlanChanged: () => void }) {
   const [chat, setChat] = useState<SavedChat>(loadChat)
-  const [sending, setSending] = useState(false)
+  // The message waiting for a reply. Kept out of the saved chat, so leaving
+  // the page mid-request never saves a message without its reply.
+  const [inFlight, setInFlight] = useState<string | null>(null)
+  const sending = inFlight !== null
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -74,15 +90,8 @@ export function useCoachChat({ onPlanChanged }: { onPlanChanged: () => void }) {
 
     const history = chat.turns.map(({ role, content }) => ({ role, content }))
 
-    setSending(true)
+    setInFlight(message)
     setError(null)
-    // Show the message right away. Swap options belong to the previous reply,
-    // so hide them while waiting.
-    setChat((current) => ({
-      ...current,
-      turns: [...current.turns, { role: 'user', content: message }],
-      options: [],
-    }))
 
     try {
       const response = await chatWithCoach({
@@ -91,12 +100,15 @@ export function useCoachChat({ onPlanChanged }: { onPlanChanged: () => void }) {
         pendingAction: chat.pendingAction,
       })
 
+      // The message and its reply are saved together, only once the reply
+      // has arrived.
       setChat((current) => ({
         turns: [
           ...current.turns,
+          { role: 'user', content: message },
           {
             role: 'assistant',
-            content: response.reply,
+            content: response.reply.trim() || EMPTY_REPLY,
             planChanged: response.plan_changed,
           },
         ],
@@ -114,17 +126,12 @@ export function useCoachChat({ onPlanChanged }: { onPlanChanged: () => void }) {
 
       return true
     } catch (err) {
-      // Undo the optimistic message, so history never holds a user turn
-      // without a reply. The pending action is kept, so the user can retry.
-      setChat((current) => ({
-        ...current,
-        turns: current.turns.slice(0, -1),
-        options: chat.options,
-      }))
+      // Nothing was saved, and the pending action and options are unchanged,
+      // so the user can simply retry.
       setError(err instanceof Error ? err.message : 'The AI coach could not answer.')
       return false
     } finally {
-      setSending(false)
+      setInFlight(null)
     }
   }
 
@@ -164,6 +171,7 @@ export function useCoachChat({ onPlanChanged }: { onPlanChanged: () => void }) {
   return {
     turns: chat.turns,
     options: chat.options,
+    inFlight,
     sending,
     error,
     send,

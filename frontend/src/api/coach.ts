@@ -1,7 +1,9 @@
 import { API_URL, authHeaders } from './client'
 
-// The server rejects more than 50 history turns (schemas/coach.py).
+// Server limits on history (schemas/coach.py). Breaking either one makes
+// every later request fail with 422.
 const MAX_HISTORY_TURNS = 50
+const MAX_TURN_LENGTH = 4000
 
 export type ChatTurn = {
   role: 'user' | 'assistant'
@@ -80,7 +82,10 @@ export async function chatWithCoach({
     headers: authHeaders(),
     body: JSON.stringify({
       message,
-      history: history.slice(-MAX_HISTORY_TURNS),
+      history: history
+        .map((turn) => ({ ...turn, content: turn.content.trim().slice(0, MAX_TURN_LENGTH) }))
+        .filter((turn) => turn.content)
+        .slice(-MAX_HISTORY_TURNS),
       pending_action: pendingAction,
     }),
   })

@@ -106,13 +106,13 @@ function AICoach({
     loadWorkout()
   }, [loadWorkout])
 
-  const { turns, options, sending, error, send, reset, canEditLast, editLast } = useCoachChat({
+  const { turns, options, inFlight, sending, error, send, reset, canEditLast, editLast } = useCoachChat({
     onPlanChanged: loadWorkout,
   })
 
   useEffect(() => {
     // Skip the empty chat, so opening the page doesn't jump to the bottom.
-    if (turns.length > 0 || error) {
+    if (turns.length > 0 || sending || error) {
       chatEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' })
     }
   }, [turns, sending, error])
@@ -241,7 +241,12 @@ function AICoach({
               </div>
             )}
 
-            {sending && <div className="ai-message"><span>Thinking...</span></div>}
+            {inFlight !== null && (
+              <>
+                <div className="user-message">{inFlight}</div>
+                <div className="ai-message"><span>Thinking...</span></div>
+              </>
+            )}
 
             {error && <div className="chat-error">{error}</div>}
 
