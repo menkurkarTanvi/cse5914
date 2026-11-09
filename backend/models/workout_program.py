@@ -1,7 +1,7 @@
 from __future__ import annotations
 import uuid
 from datetime import date
-from sqlalchemy import Date, ForeignKey, String
+from sqlalchemy import Date, ForeignKey, String, CheckConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from database.database import Base
@@ -15,6 +15,11 @@ from database.database import Base
 
 class WorkoutProgram(Base):
     __tablename__ = "workout_programs"
+    __table_args__ = (
+        CheckConstraint("end_date >= start_date", name="ck_program_dates"),
+        CheckConstraint("status IN ('draft','active','completed')", name="ck_program_status"),
+        CheckConstraint("goal IN ('strength','hypertrophy','muscular_endurance','power','general_fitness')", name="ck_program_goal"),
+    )
 
     program_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True),

@@ -103,6 +103,9 @@ class WorkoutPlanExercise(Base):
     )
 
     __table_args__ = (
+        CheckConstraint("target_rpe_min <= target_rpe_max", name="ck_target_rpe_range"),
+        CheckConstraint("planned_weight IS NULL OR planned_weight >= 0", name="ck_planned_weight"),
+        CheckConstraint("weight_unit IN ('lb','kg')", name="ck_planned_weight_unit"),
         UniqueConstraint(
             "workout_id",
             "exercise_order",

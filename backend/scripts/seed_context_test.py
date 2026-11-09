@@ -102,6 +102,7 @@ async def main() -> None:
             [
                 WorkoutPlan(
                     workout_id=COMPLETED_WORKOUT_ID,
+                    description="Full Body",
                     program_id=PROGRAM_ID,
                     week_number=1,
                     day_of_week="monday",
@@ -110,6 +111,7 @@ async def main() -> None:
                 ),
                 WorkoutPlan(
                     workout_id=UPCOMING_WORKOUT_ID,
+                    description="Full Body",
                     program_id=PROGRAM_ID,
                     week_number=2,
                     day_of_week="wednesday",

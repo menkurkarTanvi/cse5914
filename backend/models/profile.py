@@ -2,7 +2,7 @@ from __future__ import annotations
 from datetime import date
 from typing import TYPE_CHECKING
 # models.py
-from sqlalchemy import Column, ForeignKey, String, Text, false, ARRAY
+from sqlalchemy import Column, ForeignKey, String, Text, false, ARRAY, CheckConstraint
 from sqlalchemy.dialects.postgresql import TEXT, UUID, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from pgvector.sqlalchemy import Vector
@@ -66,4 +66,9 @@ class Profile(Base):
     user: Mapped["User"] = relationship(
         "User",
         back_populates="profile"
+    )
+
+    __table_args__ = (
+        CheckConstraint("goal IN ('strength','hypertrophy','muscular_endurance','power','general_fitness')", name="ck_profile_goal"),
+        CheckConstraint("experience_level IN ('beginner','intermediate','advanced')", name="ck_profile_experience"),
     )

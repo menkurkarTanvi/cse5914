@@ -3,10 +3,10 @@ import uuid
 from datetime import date
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import defer, selectinload
 
 from database.database import get_db
 from dependencies import CurrentUserId
@@ -34,13 +34,20 @@ class WorkoutSetRequest(BaseModel):
     set_number: int = Field(gt=0)
     reps: int = Field(gt=0)
     weight: float | None = Field(default=None, ge=0)
-    weight_unit: str = "lb"
+    weight_unit: Literal["lb", "kg"] = "lb"
     rpe: float | None = Field(default=None, ge=0, le=10)
 
 
 class CompletedExerciseRequest(BaseModel):
     workout_plan_exercise_id: uuid.UUID
-    sets: list[WorkoutSetRequest]
+    sets: list[WorkoutSetRequest] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def set_numbers_must_be_unique(self):
+        numbers = [item.set_number for item in self.sets]
+        if len(numbers) != len(set(numbers)):
+            raise ValueError("set_number must be unique for each exercise")
+        return self
 
 
 class WorkoutFeedbackRequest(BaseModel):
@@ -48,8 +55,15 @@ class WorkoutFeedbackRequest(BaseModel):
 
 
 class CompleteWorkoutRequest(BaseModel):
-    exercises: list[CompletedExerciseRequest]
+    exercises: list[CompletedExerciseRequest] = Field(min_length=1)
     feedback: WorkoutFeedbackRequest
+
+    @model_validator(mode="after")
+    def exercise_ids_must_be_unique(self):
+        exercise_ids = [item.workout_plan_exercise_id for item in self.exercises]
+        if len(exercise_ids) != len(set(exercise_ids)):
+            raise ValueError("workout_plan_exercise_id must be unique")
+        return self
 
 
 class SkipWorkoutRequest(BaseModel):
@@ -75,7 +89,13 @@ async def _get_owned_workout_exercise(
             WorkoutPlanExercise.id == workout_plan_exercise_id,
             WorkoutProgram.user_id == user_uuid,
         )
-        .options(selectinload(WorkoutPlanExercise.exercise))
+        .options(
+            selectinload(WorkoutPlanExercise.exercise).options(
+                defer(Exercise.embedding),
+                defer(Exercise.searchable_text),
+                defer(Exercise.instructions),
+            )
+        )
     )
 
     item = result.scalar_one_or_none()
@@ -224,6 +244,10 @@ async def exercise_alternatives(
         select(Exercise).where(
             Exercise.exercise_id
             != current.exercise_id
+        ).options(
+            defer(Exercise.embedding),
+            defer(Exercise.searchable_text),
+            defer(Exercise.instructions),
         )
     )
 
@@ -455,13 +479,13 @@ async def skip_workout(
         workout_id,
     )
 
-    workout.status = "incompleted"
+    workout.status = "skipped"
 
     await db.commit()
 
     return {
         "workout_id": str(workout_id),
-        "status": "incompleted",
+        "status": "skipped",
         "reason": body.reason,
     }
 
@@ -495,7 +519,7 @@ async def get_workout_plan(
 
     plans = (
         await workout_service
-        .get_last_week_workout_plans(
+        .get_upcoming_workout_plans(
             user_uuid,
             date.today(),
         )

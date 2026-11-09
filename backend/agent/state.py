@@ -243,6 +243,7 @@ class GeneratedExerciseState(TypedDict):
 
 
 class GeneratedWorkoutState(TypedDict):
+    description: str
     week_number: int
     day_of_week: DayOfWeek
     scheduled_date: date

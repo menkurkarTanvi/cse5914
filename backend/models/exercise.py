@@ -4,6 +4,7 @@ import uuid
 
 from sqlalchemy import (
     ARRAY,
+    CheckConstraint,
     ForeignKey,
     String,
     Text,
@@ -17,6 +18,9 @@ from database.database import Base
 
 class Exercise(Base):
     __tablename__ = "exercises"
+    __table_args__ = (
+        CheckConstraint("difficulty_level IN ('beginner','intermediate','expert','unknown')", name="ck_exercise_difficulty"),
+    )
 
     # -------------------------
     # Kinetic Exercise DB

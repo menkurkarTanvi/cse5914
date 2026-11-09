@@ -31,7 +31,7 @@ class WorkoutPlan(Base):
     )
     #Push, Pull, etc. 
     description: Mapped[str] = mapped_column(
-        nullable=True
+        nullable=False
     )
     # Week 1–4 of the program
     week_number: Mapped[int] = mapped_column(
@@ -49,7 +49,8 @@ class WorkoutPlan(Base):
         nullable=False
     )
 
-    #status must be either scheduled/completed/incompleted
+    # Status values currently used by the application are scheduled,
+    # in_progress, completed, and skipped.
     status: Mapped[str] = mapped_column(
         String,
         nullable=False,
@@ -76,6 +77,8 @@ class WorkoutPlan(Base):
     )
 
     __table_args__ = (
+        CheckConstraint("status IN ('scheduled','in_progress','completed','skipped')", name="ck_workout_status"),
+        CheckConstraint("lower(day_of_week) IN ('monday','tuesday','wednesday','thursday','friday','saturday','sunday')", name="ck_workout_day"),
         UniqueConstraint(
             "program_id",
             "week_number",
