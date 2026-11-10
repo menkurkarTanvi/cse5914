@@ -92,10 +92,7 @@ function App() {
 
       <main className="main-content">
         {page === 'dashboard' && (
-          <Dashboard
-            setPage={setPage}
-            exercises={exercises}
-          />
+          <Dashboard setPage={setPage} />
         )}
 
         {page === 'profile' && (
