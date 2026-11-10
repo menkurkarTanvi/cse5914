@@ -8,12 +8,42 @@ from sqlalchemy.orm import selectinload
 from models.workout_plan import WorkoutPlan
 from models.workout_plan_exercise import WorkoutPlanExercise
 from models.workout_program import WorkoutProgram
-
+from agent.graph import run_workout_agent
 
 class Workout_Service:
     def __init__(self, db: AsyncSession):
         self.db = db
 
+    #This function calls the agent to generate a new workout program for the user
+    async def generate_new_workout_program(self, user_id: uuid.UUID) -> dict:
+        return run_workout_agent(user_id=user_id)
+
+    async def determine_user_has_workout_plan(self, user_id: uuid.UUID) -> bool:
+        #Get the most recent workout program for the user
+        result = await self.db.execute(
+            select(WorkoutProgram)
+            .where(WorkoutProgram.user_id == user_id)
+            .order_by(WorkoutProgram.start_date.desc())
+            .limit(1)
+        )
+        program = result.scalar_one_or_none()
+
+        if not program:
+            return False
+
+        #Determine the last week number of the most current workout program
+        result = await self.db.execute(
+            select(WorkoutPlan)
+            .where(WorkoutPlan.program_id == program.program_id)
+            .order_by(WorkoutPlan.scheduled_date.desc())    
+            .limit(1)
+        )
+        plan = result.scalar_one_or_none()
+
+        #If the week number if 4, return false, else return true
+        if plan and plan.week_number == 4:
+            return False
+        return True
 
     async def get_upcoming_workout_plans(
         self,

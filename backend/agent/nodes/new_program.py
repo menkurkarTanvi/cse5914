@@ -323,7 +323,10 @@ def build_program(
     availability: list[dict],
     recent_performance: list[dict],
     start_date: date,
+    weeks_to_schedule: int = 1, 
 ) -> dict:
+    weeks_to_schedule = min(weeks_to_schedule, PROGRAM_WEEKS)   # NEW
+
     experience = starting_point["experience_level"]
     goal = starting_point["goal"]
 
@@ -362,7 +365,7 @@ def build_program(
         )
 
     workouts = []
-    for week in range(1, PROGRAM_WEEKS + 1):
+    for week in range(1, weeks_to_schedule + 1):
         week_start = start_date + timedelta(days=7 * (week - 1))
         for day in training_days:
             workouts.append(
