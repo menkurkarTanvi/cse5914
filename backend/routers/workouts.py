@@ -483,6 +483,7 @@ async def get_workout_plan(
             "message": ("Please create a profile before requesting a workout plan."),
         }
     
+    """
     generate_new_workout_plan = False
     generate_new_workout_plan = await workout_service.determine_user_has_workout_plan(user_uuid)
 
@@ -494,6 +495,7 @@ async def get_workout_plan(
         }
     else:
         new_workout_program = await workout_service.generate_new_workout_program(user_uuid)
+    """
 
     #-------------Get the workout plan for the week--------------------------------------------------
     plans = (
