@@ -26,7 +26,7 @@ def _credentials_exception() -> HTTPException:
 
 #Function for creating the access token
 async def create_access_token(
-    data: dict, expires_delta: timedelta = timedelta(minutes=15)
+    data: dict, expires_delta: timedelta = timedelta(minutes=60)
 ) -> str:
     """Create a signed JWT access token with an expiration claim."""
     to_encode = data.copy()
