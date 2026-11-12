@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:8000'
+import { API_URL, authHeaders } from './client'
 
 export type ApiWorkoutExercise = {
   id: string // WorkoutPlanExercise id
@@ -69,17 +69,6 @@ export type CompleteWorkoutPayload = {
   }>
   feedback: {
     difficulty: 'too_easy' | 'great' | 'too_hard'
-  }
-}
-
-function authHeaders(): HeadersInit {
-  const token = localStorage.getItem('token')
-
-  return {
-    'Content-Type': 'application/json',
-    ...(token
-      ? { Authorization: `Bearer ${token}` }
-      : {}),
   }
 }
 

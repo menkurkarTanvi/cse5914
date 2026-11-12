@@ -12,12 +12,9 @@ import Nutrition from './pages/Nutrition'
 import Login from './pages/Login'
 import SignUp from './pages/SignUp'
 
-import { initialExercises } from './data/mockData'
+import { clearCoachChat } from './hooks/useCoachChat'
 
-import type {
-  Exercise,
-  Page,
-} from './types'
+import type { Page } from './types'
 
 function App() {
   const [token, setToken] = useState<string | null>(
@@ -32,39 +29,28 @@ function App() {
 
   const loggedIn = token !== null
 
-  const [exercises] =
-    useState<Exercise[]>(initialExercises)
-
-  const [message, setMessage] =
+  // A message to type into the AI Coach's text box when it opens, set by the
+  // dashboard's shortcuts. Used once, then cleared.
+  const [coachDraft, setCoachDraft] =
     useState('')
 
-  const [chatReply, setChatReply] =
-    useState(
-      'Try dumbbell bench press as the closest substitute. Keep the same 3 sets and use 8–12 reps with a controlled tempo.',
-    )
+  function openCoach(draft: string) {
+    setCoachDraft(draft)
+    setPage('coach')
+  }
 
   function handleLogin(token: string) {
     localStorage.setItem('token', token)
+    clearCoachChat()
     setToken(token)
     setPage('dashboard')
   }
- 
+
   function handleLogout() {
     localStorage.removeItem('token')
+    clearCoachChat()
     setToken(null)
     setPage('login')
-  }
-
-  function sendMessage() {
-    if (!message.trim()) {
-      return
-    }
-
-    setChatReply(
-      `For "${message.trim()}", FitStack would send your profile and current workout to the backend AI service and return a personalized recommendation here.`,
-    )
-
-    setMessage('')
   }
 
   if (!loggedIn) {
@@ -92,7 +78,10 @@ function App() {
 
       <main className="main-content">
         {page === 'dashboard' && (
-          <Dashboard setPage={setPage} />
+          <Dashboard
+            setPage={setPage}
+            openCoach={openCoach}
+          />
         )}
 
         {page === 'profile' && (
@@ -105,11 +94,8 @@ function App() {
 
         {page === 'coach' && (
           <AICoach
-            exercises={exercises}
-            message={message}
-            setMessage={setMessage}
-            chatReply={chatReply}
-            sendMessage={sendMessage}
+            draft={coachDraft}
+            onDraftUsed={() => setCoachDraft('')}
           />
         )}
 

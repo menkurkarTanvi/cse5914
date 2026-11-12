@@ -14,6 +14,8 @@ import type { Page } from '../types'
 
 type Props = {
   setPage: (page: Page) => void
+  // Opens the AI Coach with this message typed in, ready to edit or send.
+  openCoach: (draft: string) => void
 }
 
 function formatLabel(
@@ -102,8 +104,15 @@ function exerciseSets(
   return `${exercise.sets_planned} × ${reps}`
 }
 
+const COACH_SHORTCUTS = [
+  'I only have 30 minutes',
+  'Swap an exercise',
+  'I feel sore today',
+]
+
 function Dashboard({
   setPage,
+  openCoach,
 }: Props) {
   const [plan, setPlan] =
     useState<WorkoutPlanResponse | null>(
@@ -347,32 +356,17 @@ function Dashboard({
             Ask AI Coach
           </button>
 
-          <button
-            className="quick-button"
-            onClick={() =>
-              setPage('coach')
-            }
-          >
-            I only have 30 minutes
-          </button>
-
-          <button
-            className="quick-button"
-            onClick={() =>
-              setPage('coach')
-            }
-          >
-            Swap an exercise
-          </button>
-
-          <button
-            className="quick-button"
-            onClick={() =>
-              setPage('coach')
-            }
-          >
-            I feel sore today
-          </button>
+          {COACH_SHORTCUTS.map((shortcut) => (
+            <button
+              key={shortcut}
+              className="quick-button"
+              onClick={() =>
+                openCoach(shortcut)
+              }
+            >
+              {shortcut}
+            </button>
+          ))}
         </div>
       </section>
     </>
