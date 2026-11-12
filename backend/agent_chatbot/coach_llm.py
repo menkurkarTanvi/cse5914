@@ -94,7 +94,10 @@ def build_answer_messages(state: dict, details: dict | None, planned: dict | Non
     context = [_profile_context(state), _workout_context(state)]
     if details is not None:
         context.append(_exercise_context(details, planned))
-    elif state.get("intent", {}).get("intent") == "exercise_question":
+    elif (
+        state.get("intent", {}).get("intent") == "exercise_question"
+        and state["intent"].get("exercise_name")
+    ):
         context.append(
             f"The user asked about \"{state['intent'].get('exercise_name')}\", which isn't in the "
             "FitStack exercise library. Answer from general knowledge and say so briefly."

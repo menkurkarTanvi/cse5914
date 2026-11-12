@@ -162,8 +162,8 @@ def follow_up_question(intent: dict, state: CoachState) -> str | None:
                 "Or say \"the whole workout\"."
             )
 
-    if name == "exercise_question" and not intent.get("exercise_name"):
-        return "Which exercise are you asking about?"
+    # An exercise question with no exercise named ("what's a good exercise for
+    # chest?") is a general one; route_after_classify answers it directly.
 
     return None
 
@@ -183,6 +183,9 @@ def route_after_classify(state: CoachState) -> str:
         # Don't let the LLM answer "yes" as if something had been applied.
         return "pending_expired_reply"
     if intent in MODIFY_INTENTS and not state.get("current_workout_exercises"):
+        return "general_reply"
+    if intent == "exercise_question" and not state["intent"].get("exercise_name"):
+        # Nothing to look up; answered from the profile and today's workout.
         return "general_reply"
     return {
         "exercise_question": "answer_exercise_question",

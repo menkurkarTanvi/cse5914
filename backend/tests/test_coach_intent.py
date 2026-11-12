@@ -85,6 +85,18 @@ def test_adjust_without_direction_asks_easier_or_harder():
     assert result["reply"] == "Do you want today's workout to be easier or harder?"
 
 
+def test_question_without_an_exercise_is_answered():
+    result, llm = run(
+        {"intent": "exercise_question"}, "what's a good exercise for chest?",
+        answer="Try dumbbell bench press.",
+    )
+    assert result["reply"] == "Try dumbbell bench press."
+    assert result.get("new_pending") is None
+    # The answer prompt doesn't claim an unnamed exercise is missing from the library.
+    system_prompt = llm.calls[-1][0].content
+    assert "isn't in the FitStack exercise library" not in system_prompt
+
+
 def test_modify_without_a_workout_does_not_ask_follow_up():
     result, llm = run({"intent": "shorten_workout"}, "shorten my workout", exercises=[])
     assert result.get("new_pending") is None
