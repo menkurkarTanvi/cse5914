@@ -12,13 +12,9 @@ import Nutrition from './pages/Nutrition'
 import Login from './pages/Login'
 import SignUp from './pages/SignUp'
 
-import { initialExercises } from './data/mockData'
 import { clearCoachChat } from './hooks/useCoachChat'
 
-import type {
-  Exercise,
-  Page,
-} from './types'
+import type { Page } from './types'
 
 function App() {
   const [token, setToken] = useState<string | null>(
@@ -32,9 +28,6 @@ function App() {
   )
 
   const loggedIn = token !== null
-
-  const [exercises] =
-    useState<Exercise[]>(initialExercises)
 
   // A message to type into the AI Coach's text box when it opens, set by the
   // dashboard's shortcuts. Used once, then cleared.
@@ -88,7 +81,6 @@ function App() {
           <Dashboard
             setPage={setPage}
             openCoach={openCoach}
-            exercises={exercises}
           />
         )}
 

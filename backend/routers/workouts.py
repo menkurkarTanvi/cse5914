@@ -109,10 +109,7 @@ async def _get_owned_workout_exercise(
     return item
 
 
-async def _get_owned_workout(
-    db: AsyncSession,
-    user_uuid: uuid.UUID,
-    workout_id: uuid.UUID,
+async def _get_owned_workout(db: AsyncSession, user_uuid: uuid.UUID, workout_id: uuid.UUID,
 ) -> WorkoutPlan:
     result = await db.execute(
         select(WorkoutPlan)
@@ -126,47 +123,24 @@ async def _get_owned_workout(
         )
         .options(selectinload(WorkoutPlan.exercises))
     )
-
     workout = result.scalar_one_or_none()
-
     if workout is None:
         raise HTTPException(
             status_code=404,
             detail="Workout not found",
         )
-
     return workout
 
 
-def _exercise_score(
-    current: Exercise,
-    candidate: Exercise,
+def _exercise_score(current: Exercise, candidate: Exercise,
 ) -> int:
     score = 0
-
-    if (
-        current.substitution_group
-        and candidate.substitution_group
-        == current.substitution_group
-    ):
+    if (current.substitution_group and candidate.substitution_group == current.substitution_group):
         score += 8
-
-    current_primary = set(
-        current.primary_muscles or []
-    )
-    candidate_primary = set(
-        candidate.primary_muscles or []
-    )
-
-    score += 3 * len(
-        current_primary & candidate_primary
-    )
-
-    if (
-        current.movement_pattern
-        and candidate.movement_pattern
-        == current.movement_pattern
-    ):
+    current_primary = set(current.primary_muscles or [])
+    candidate_primary = set(candidate.primary_muscles or [])
+    score += 3 * len(current_primary & candidate_primary)
+    if (current.movement_pattern and candidate.movement_pattern == current.movement_pattern):
         score += 4
 
     if (
@@ -463,7 +437,7 @@ async def complete_workout(
         "status": "completed",
     }
 
-
+#-------------------------User marks a workout as INCOMPLETE ------------------------------------
 @router.post("/{workout_id}/skip")
 async def skip_workout(
     workout_id: uuid.UUID,
@@ -478,45 +452,50 @@ async def skip_workout(
         user_uuid,
         workout_id,
     )
-
     workout.status = "skipped"
-
     await db.commit()
-
     return {
         "workout_id": str(workout_id),
         "status": "skipped",
         "reason": body.reason,
     }
 
-
+#-------------------------Get the workout plan for the week-------------------------------------#
 @router.get("/workoutPlan")
 async def get_workout_plan(
     user_id: CurrentUserId,
     db: AsyncSession = Depends(get_db),
 ) -> dict:
+    workout_service = Workout_Service(db)
     user_uuid = uuid.UUID(user_id)
 
+    #Determine if the user has a active profile (if not workout program cannot be generated)
     profile = await db.execute(
-        select(Profile).where(
-            Profile.user_id == user_uuid
+            select(Profile).where(
+                Profile.user_id == user_uuid
+            )
         )
-    )
-
     profile = profile.scalar_one_or_none()
-
     if not profile:
         return {
             "program": None,
             "workouts": [],
-            "message": (
-                "Please create a profile "
-                "before requesting a workout plan."
-            ),
+            "message": ("Please create a profile before requesting a workout plan."),
         }
+    
+    generate_new_workout_plan = False
+    generate_new_workout_plan = await workout_service.determine_user_has_workout_plan(user_uuid)
 
-    workout_service = Workout_Service(db)
+    if not generate_new_workout_plan:
+        return {
+            "program": None,
+            "workouts": [],
+            "message": ("Please generate a new workout plan."),
+        }
+    else:
+        new_workout_program = await workout_service.generate_new_workout_program(user_uuid)
 
+    #-------------Get the workout plan for the week--------------------------------------------------
     plans = (
         await workout_service
         .get_upcoming_workout_plans(
