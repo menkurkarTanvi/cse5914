@@ -7,7 +7,7 @@ AI-assisted adaptive fitness programming. The repository contains a React/Vite f
 Prerequisites: Python 3.11+ and Docker.
 
 ```bash
-cp .env.example .env    # then fill in SECRET_KEY (and GOOGLE_API_KEY for the AI coach)
+cp .env.example .env    # then fill in SECRET_KEY (and OPENAI_API_KEY or GOOGLE_API_KEY for the AI coach)
 docker compose up -d --wait db
 python -m venv .venv
 source .venv/bin/activate
@@ -38,13 +38,18 @@ From `backend/`, `python -m scripts.ingest` pulls the full exercise catalog (899
 
 ## AI coach
 
-The AI Coach chat is `POST /coach/chat` (a LangGraph agent in `backend/agent/nodes/coach*.py`, tunable values in `backend/agent/coach_rules.py`). It answers exercise questions and can swap an exercise, shorten today's workout, or make it easier or harder, asking follow-up questions when it needs more detail. Changes are only saved after you confirm them.
+The AI Coach chat is `POST /coach/chat` (a LangGraph agent in `backend/agent_chatbot/`, tunable values in `backend/agent_chatbot/coach_rules.py`). It answers exercise questions and can swap an exercise, shorten today's workout, or make it easier or harder, asking follow-up questions when it needs more detail. Changes are only saved after you confirm them.
 
-It uses Gemini, so add a free API key from <https://aistudio.google.com/apikey> to `.env` as `GOOGLE_API_KEY`. Without it the route returns 503.
+It needs one API key in `.env`:
+
+- `OPENAI_API_KEY`: used first when set (`gpt-4o-mini` by default). Paid, so no free-tier rate limits.
+- `GOOGLE_API_KEY`: Gemini, used when there's no OpenAI key. Free from <https://aistudio.google.com/apikey>, but rate limited.
+
+`COACH_PROVIDER=openai` or `gemini` forces one, and `COACH_MODEL` overrides the model. Without a key the route returns 503. Restart the backend after changing these.
 
 ### Try it in your terminal
 
-The frontend's AI Coach page isn't connected yet, so test it with `backend/scripts/coach_chat.py`. From `backend/`, with the virtual environment active:
+You can also test it without the frontend, with `backend/scripts/coach_chat.py`. From `backend/`, with the virtual environment active:
 
 ```bash
 python -m scripts.ingest              # once, if your exercises table is empty
@@ -71,7 +76,7 @@ After each reply the script shows the intent the coach picked and whether it's w
 
 Confirmed changes are saved to that demo user's workout in your local database. To see them, look at `workout_plan_exercises` (for example `docker compose exec db psql -U fitstack -d fitstack`). To undo them, run `python scripts/coach_chat.py --reset`, which rebuilds both demo users' plans.
 
-Each message uses your Gemini free-tier quota. If the coach says it's busy, wait a minute and try again.
+Each message makes one or two model calls. With Gemini that uses your free-tier quota: if the coach says it's busy, wait a minute and try again.
 
 ### Tests
 
