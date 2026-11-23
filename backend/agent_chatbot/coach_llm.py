@@ -7,10 +7,19 @@ from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, System
 
 load_dotenv()
 
-# The AI coach's model. Gemini is the team's pick (free tier); any LangChain
-# chat model with structured output works, so switching provider only means
-# changing get_coach_llm.
-DEFAULT_COACH_MODEL = "gemini-3.5-flash"
+# The AI coach's model. OpenAI is used when OPENAI_API_KEY is set (paid, no
+# free-tier rate limits); otherwise Gemini (free tier) with GOOGLE_API_KEY.
+# COACH_PROVIDER forces one ("openai" or "gemini"), and COACH_MODEL overrides
+# the model. Any LangChain chat model with structured output works.
+DEFAULT_COACH_MODELS = {
+    "openai": "gpt-4o-mini",
+    "gemini": "gemini-3.5-flash",
+}
+
+API_KEY_SETTINGS = {
+    "openai": "OPENAI_API_KEY",
+    "gemini": "GOOGLE_API_KEY",
+}
 
 # How many earlier chat turns the model sees.
 HISTORY_TURNS = 10
@@ -20,17 +29,51 @@ class CoachUnavailableError(RuntimeError):
     pass
 
 
+def coach_provider() -> str:
+    """Which provider the coach uses: COACH_PROVIDER if set, else the first
+    one with an API key, preferring OpenAI."""
+    provider = os.getenv("COACH_PROVIDER", "").strip().lower()
+    if provider:
+        if provider not in API_KEY_SETTINGS:
+            raise CoachUnavailableError(
+                f"COACH_PROVIDER must be 'openai' or 'gemini', not {provider!r}."
+            )
+        return provider
+    for provider, setting in API_KEY_SETTINGS.items():
+        if os.getenv(setting):
+            return provider
+    raise CoachUnavailableError(
+        "The AI coach needs OPENAI_API_KEY or GOOGLE_API_KEY in .env "
+        "(a free Gemini key: https://aistudio.google.com/apikey)."
+    )
+
+
 def get_coach_llm():
-    api_key = os.getenv("GOOGLE_API_KEY")
+    provider = coach_provider()
+    api_key = os.getenv(API_KEY_SETTINGS[provider])
     if not api_key:
         raise CoachUnavailableError(
-            "The AI coach needs GOOGLE_API_KEY in .env (get one at https://aistudio.google.com/apikey)."
+            f"COACH_PROVIDER is {provider!r}, but {API_KEY_SETTINGS[provider]} is not set in .env."
         )
+    if not api_key.isascii():
+        # Otherwise every request fails with a bare 500 while building headers.
+        raise CoachUnavailableError(
+            f"{API_KEY_SETTINGS[provider]} in .env contains non-ASCII characters, often "
+            "lookalike letters from copying the key. Paste the key again."
+        )
+    model = os.getenv("COACH_MODEL") or DEFAULT_COACH_MODELS[provider]
 
-    from langchain_google_genai import ChatGoogleGenerativeAI
+    if provider == "openai":
+        from langchain_openai import ChatOpenAI
 
-    return ChatGoogleGenerativeAI(
-        model=os.getenv("COACH_MODEL", DEFAULT_COACH_MODEL),
+        chat_model = ChatOpenAI
+    else:
+        from langchain_google_genai import ChatGoogleGenerativeAI
+
+        chat_model = ChatGoogleGenerativeAI
+
+    return chat_model(
+        model=model,
         api_key=api_key,
         max_retries=2,
         # Seconds. Without this, a hung call holds the request open forever.
@@ -47,13 +90,22 @@ def is_llm_error(exc: BaseException) -> bool:
     import asyncio
 
     import httpx
+    import openai
     from google.genai.errors import APIError
     from langchain_core.exceptions import OutputParserException
     from langchain_google_genai._common import GoogleGenerativeAIError
 
     return isinstance(
         exc,
-        (GoogleGenerativeAIError, APIError, OutputParserException, httpx.TimeoutException, asyncio.TimeoutError),
+        (
+            GoogleGenerativeAIError,
+            APIError,
+            # Rate limits, timeouts, connection failures and 5xx from OpenAI.
+            openai.APIError,
+            OutputParserException,
+            httpx.TimeoutException,
+            asyncio.TimeoutError,
+        ),
     )
 
 

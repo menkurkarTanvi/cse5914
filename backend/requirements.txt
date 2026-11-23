@@ -17,3 +17,4 @@ pyjwt[crypto]
 #AI
 langgraph>=0.2.0
 langchain-google-genai>=2.0.0
+langchain-openai>=1.0.0
